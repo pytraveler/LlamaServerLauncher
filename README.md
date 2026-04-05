@@ -1,5 +1,7 @@
 # LlamaCppLauncher
 
+![LlamaCppLauncher](docs/images/preview.png)
+
 A Windows desktop application for launching and managing [llama.cpp](https://github.com/ggerganov/llama.cpp) server instances with an intuitive graphical interface.
 
 ## Features
@@ -58,6 +60,8 @@ Alternatively, build from source:
 ```bash
 dotnet publish -c Release -r win-x64 --self-contained
 ```
+ 
+Download .NET 8 Runtime - https://dotnet.microsoft.com/ru-ru/download/dotnet/8.0.
 
 ## Usage
 
