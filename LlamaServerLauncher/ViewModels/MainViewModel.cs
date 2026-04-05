@@ -1,0 +1,643 @@
+using System.Collections.ObjectModel;
+using System.ComponentModel;
+using System.Runtime.CompilerServices;
+using System.Windows;
+using System.Windows.Input;
+using LlamaServerLauncher.Models;
+using LlamaServerLauncher.Services;
+using Microsoft.Win32;
+using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
+using SaveFileDialog = Microsoft.Win32.SaveFileDialog;
+using MessageBox = System.Windows.MessageBox;
+using Application = System.Windows.Application;
+
+using static LlamaServerLauncher.Models.CommandLineBuilder;
+
+namespace LlamaServerLauncher.ViewModels;
+
+public class MainViewModel : INotifyPropertyChanged
+{
+    private readonly LlamaServerService _serverService;
+    private readonly ConfigurationService _configService;
+    private readonly LogService _logService;
+
+    private string _executablePath = string.Empty;
+    private string _modelPath = string.Empty;
+    private string _modelsDir = string.Empty;
+    private string _host = "127.0.0.1";
+    private int _port = 8080;
+    private string _contextSize = string.Empty;
+    private string _threads = string.Empty;
+    private string _gpuLayers = string.Empty;
+    private string _temperature = string.Empty;
+    private string _maxTokens = string.Empty;
+    private string _batchSize = string.Empty;
+    private string _topK = string.Empty;
+    private string _topP = string.Empty;
+    private string _repeatPenalty = string.Empty;
+    private bool? _flashAttention;
+    private bool? _enableWebUI;
+    private bool? _embeddingMode;
+    private bool? _enableSlots;
+    private bool? _enableMetrics;
+    private string _apiKey = string.Empty;
+    private string _logFilePath = string.Empty;
+    private bool _verboseLogging;
+    private string _customArguments = string.Empty;
+    private string _selectedProfile = string.Empty;
+    private string _profileNameInput = string.Empty;
+    private bool _isServerRunning;
+    private string _serverStatus = "Stopped";
+    private string _currentLog = string.Empty;
+    private string _logOutput = string.Empty;
+    private string _logText = string.Empty;
+    private string _currentCommand = string.Empty;
+
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public MainViewModel()
+    {
+        _logService = new LogService();
+        _logService.LogReceived += OnLogReceived;
+        _serverService = new LlamaServerService(_logService);
+        _configService = new ConfigurationService(_logService);
+
+        _serverService.OutputReceived += OnServerOutput;
+        _serverService.ServerStateChanged += OnServerStateChanged;
+
+        Profiles = new ObservableCollection<string>();
+
+        BrowseExecutableCommand = new RelayCommand(BrowseExecutable);
+        BrowseModelCommand = new RelayCommand(BrowseModel);
+        BrowseModelsDirCommand = new RelayCommand(BrowseModelsDir);
+        BrowseLogFileCommand = new RelayCommand(BrowseLogFile);
+        StartServerCommand = new AsyncRelayCommand(StartServerAsync, () => CanStartServer);
+        StopServerCommand = new AsyncRelayCommand(StopServerAsync, () => IsServerRunning);
+        UnloadModelCommand = new AsyncRelayCommand(UnloadModelAsync, () => IsServerRunning);
+        SaveProfileCommand = new AsyncRelayCommand(SaveProfileAsync);
+        LoadProfileCommand = new AsyncRelayCommand(LoadProfileAsync);
+        DeleteProfileCommand = new AsyncRelayCommand(DeleteProfileAsync);
+        ExportProfileCommand = new AsyncRelayCommand(ExportProfileAsync);
+        ImportProfileCommand = new AsyncRelayCommand(ImportProfileAsync);
+        ClearLogCommand = new RelayCommand(ClearLog);
+
+        LoadProfiles();
+        _logService.AppLog("Application started");
+        UpdateCurrentCommand();
+    }
+
+    public void ApplyAppSettings(AppSettings settings)
+    {
+        ProfileNameInput = settings.ProfileNameInput;
+        ExecutablePath = settings.ExecutablePath;
+        ModelPath = settings.ModelPath;
+        ModelsDir = settings.ModelsDir;
+        Host = settings.Host;
+        Port = settings.Port;
+        ContextSize = settings.ContextSize;
+        Threads = settings.Threads;
+        GpuLayers = settings.GpuLayers;
+        Temperature = settings.Temperature;
+        MaxTokens = settings.MaxTokens;
+        BatchSize = settings.BatchSize;
+        TopK = settings.TopK;
+        TopP = settings.TopP;
+        RepeatPenalty = settings.RepeatPenalty;
+        FlashAttention = settings.FlashAttention;
+        EnableWebUI = settings.EnableWebUI;
+        EmbeddingMode = settings.EmbeddingMode;
+        EnableSlots = settings.EnableSlots;
+        EnableMetrics = settings.EnableMetrics;
+        ApiKey = settings.ApiKey;
+        LogFilePath = settings.LogFilePath;
+        VerboseLogging = settings.VerboseLogging;
+        CustomArguments = settings.CustomArguments;
+    }
+
+    public AppSettings GetAppSettings()
+    {
+        return new AppSettings
+        {
+            ProfileNameInput = ProfileNameInput,
+            ExecutablePath = ExecutablePath,
+            ModelPath = ModelPath,
+            ModelsDir = ModelsDir,
+            Host = Host,
+            Port = Port,
+            ContextSize = ContextSize,
+            Threads = Threads,
+            GpuLayers = GpuLayers,
+            Temperature = Temperature,
+            MaxTokens = MaxTokens,
+            BatchSize = BatchSize,
+            TopK = TopK,
+            TopP = TopP,
+            RepeatPenalty = RepeatPenalty,
+            FlashAttention = FlashAttention,
+            EnableWebUI = EnableWebUI,
+            EmbeddingMode = EmbeddingMode,
+            EnableSlots = EnableSlots,
+            EnableMetrics = EnableMetrics,
+            ApiKey = ApiKey,
+            LogFilePath = LogFilePath,
+            VerboseLogging = VerboseLogging,
+            CustomArguments = CustomArguments
+        };
+    }
+
+    public string ExecutablePath
+    {
+        get => _executablePath;
+        set { _executablePath = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanStartServer)); UpdateCurrentCommand(); }
+    }
+
+    public string ModelPath
+    {
+        get => _modelPath;
+        set { _modelPath = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanStartServer)); UpdateCurrentCommand(); }
+    }
+
+    public string ModelsDir
+    {
+        get => _modelsDir;
+        set { _modelsDir = value; OnPropertyChanged(); OnPropertyChanged(nameof(CanStartServer)); UpdateCurrentCommand(); }
+    }
+
+    public string Host
+    {
+        get => _host;
+        set { _host = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public int Port
+    {
+        get => _port;
+        set { _port = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string ContextSize
+    {
+        get => _contextSize;
+        set { _contextSize = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string Threads
+    {
+        get => _threads;
+        set { _threads = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string GpuLayers
+    {
+        get => _gpuLayers;
+        set { _gpuLayers = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string Temperature
+    {
+        get => _temperature;
+        set { _temperature = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string MaxTokens
+    {
+        get => _maxTokens;
+        set { _maxTokens = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string BatchSize
+    {
+        get => _batchSize;
+        set { _batchSize = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string TopK
+    {
+        get => _topK;
+        set { _topK = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string TopP
+    {
+        get => _topP;
+        set { _topP = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string RepeatPenalty
+    {
+        get => _repeatPenalty;
+        set { _repeatPenalty = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public bool? FlashAttention
+    {
+        get => _flashAttention;
+        set { _flashAttention = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public bool? EnableWebUI
+    {
+        get => _enableWebUI;
+        set { _enableWebUI = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public bool? EmbeddingMode
+    {
+        get => _embeddingMode;
+        set { _embeddingMode = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public bool? EnableSlots
+    {
+        get => _enableSlots;
+        set { _enableSlots = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public bool? EnableMetrics
+    {
+        get => _enableMetrics;
+        set { _enableMetrics = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string ApiKey
+    {
+        get => _apiKey;
+        set { _apiKey = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string LogFilePath
+    {
+        get => _logFilePath;
+        set { _logFilePath = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public bool VerboseLogging
+    {
+        get => _verboseLogging;
+        set { _verboseLogging = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string CustomArguments
+    {
+        get => _customArguments;
+        set { _customArguments = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public string SelectedProfile
+    {
+        get => _selectedProfile;
+        set { _selectedProfile = value; OnPropertyChanged(); }
+    }
+
+    public string ProfileNameInput
+    {
+        get => _profileNameInput;
+        set { _profileNameInput = value; OnPropertyChanged(); }
+    }
+
+    public bool IsServerRunning
+    {
+        get => _isServerRunning;
+        set { _isServerRunning = value; OnPropertyChanged(); }
+    }
+
+    public string ServerStatus
+    {
+        get => _serverStatus;
+        set { _serverStatus = value; OnPropertyChanged(); }
+    }
+
+    public string CurrentLog
+    {
+        get => _currentLog;
+        set { _currentLog = value; OnPropertyChanged(); }
+    }
+
+    public ObservableCollection<string> Profiles { get; }
+    public ObservableCollection<string> LogLines { get; } = new();
+
+    public string LogOutput
+    {
+        get => _logOutput;
+        set { _logOutput = value; OnPropertyChanged(); }
+    }
+
+    public string LogText
+    {
+        get => _logText;
+        private set { _logText = value; OnPropertyChanged(); }
+    }
+
+    public string CurrentCommand
+    {
+        get => _currentCommand;
+        private set { _currentCommand = value; OnPropertyChanged(); }
+    }
+
+    public ICommand BrowseExecutableCommand { get; }
+    public ICommand BrowseModelCommand { get; }
+    public ICommand BrowseModelsDirCommand { get; }
+    public ICommand BrowseLogFileCommand { get; }
+    public ICommand StartServerCommand { get; }
+    public ICommand StopServerCommand { get; }
+    public ICommand UnloadModelCommand { get; }
+    public ICommand SaveProfileCommand { get; }
+    public ICommand LoadProfileCommand { get; }
+    public ICommand DeleteProfileCommand { get; }
+    public ICommand ExportProfileCommand { get; }
+    public ICommand ImportProfileCommand { get; }
+    public ICommand ClearLogCommand { get; }
+
+    public bool CanStartServer => !string.IsNullOrEmpty(ExecutablePath) && 
+                                   (!string.IsNullOrEmpty(ModelPath) || !string.IsNullOrEmpty(ModelsDir));
+
+    private void BrowseExecutable()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "Executable files (*.exe)|*.exe|All files (*.*)|*.*",
+            Title = "Select llama-server.exe"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            ExecutablePath = dialog.FileName;
+        }
+    }
+
+    private void UpdateCurrentCommand()
+    {
+        var config = GetCurrentConfig();
+        CurrentCommand = BuildFullCommand(config);
+    }
+
+    private void BrowseModel()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "Model files (*.gguf)|*.gguf|All files (*.*)|*.*",
+            Title = "Select Model File"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            ModelPath = dialog.FileName;
+        }
+    }
+
+    private void BrowseModelsDir()
+    {
+        var dialog = new OpenFolderDialog
+        {
+            Title = "Select Models Directory"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            ModelsDir = dialog.FolderName;
+        }
+    }
+
+    private void BrowseLogFile()
+    {
+        var dialog = new SaveFileDialog
+        {
+            Filter = "Log files (*.log)|*.log|All files (*.*)|*.*",
+            Title = "Select Log File"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            LogFilePath = dialog.FileName;
+        }
+    }
+
+    private ServerConfiguration GetCurrentConfig()
+    {
+        return new ServerConfiguration
+        {
+            ExecutablePath = ExecutablePath,
+            ModelPath = ModelPath,
+            ModelsDir = ModelsDir,
+            Host = Host,
+            Port = Port,
+            ContextSize = ParseNullableInt(ContextSize),
+            Threads = ParseNullableInt(Threads),
+            GpuLayers = ParseNullableInt(GpuLayers),
+            Temperature = ParseNullableDouble(Temperature),
+            MaxTokens = ParseNullableInt(MaxTokens),
+            BatchSize = ParseNullableInt(BatchSize),
+            TopK = ParseNullableInt(TopK),
+            TopP = ParseNullableDouble(TopP),
+            RepeatPenalty = ParseNullableDouble(RepeatPenalty),
+            FlashAttention = FlashAttention,
+            EnableWebUI = EnableWebUI,
+            EmbeddingMode = EmbeddingMode,
+            EnableSlots = EnableSlots,
+            EnableMetrics = EnableMetrics,
+            ApiKey = ApiKey,
+            LogFilePath = LogFilePath,
+            VerboseLogging = VerboseLogging,
+            CustomArguments = CustomArguments
+        };
+    }
+
+    private void LoadConfigToUI(ServerConfiguration config)
+    {
+        ExecutablePath = config.ExecutablePath;
+        ModelPath = config.ModelPath;
+        ModelsDir = config.ModelsDir;
+        Host = config.Host;
+        Port = config.Port;
+        ContextSize = config.ContextSize?.ToString() ?? string.Empty;
+        Threads = config.Threads?.ToString() ?? string.Empty;
+        GpuLayers = config.GpuLayers?.ToString() ?? string.Empty;
+        Temperature = config.Temperature?.ToString() ?? string.Empty;
+        MaxTokens = config.MaxTokens?.ToString() ?? string.Empty;
+        BatchSize = config.BatchSize?.ToString() ?? string.Empty;
+        TopK = config.TopK?.ToString() ?? string.Empty;
+        TopP = config.TopP?.ToString() ?? string.Empty;
+        RepeatPenalty = config.RepeatPenalty?.ToString() ?? string.Empty;
+        FlashAttention = config.FlashAttention;
+        EnableWebUI = config.EnableWebUI;
+        EmbeddingMode = config.EmbeddingMode;
+        EnableSlots = config.EnableSlots;
+        EnableMetrics = config.EnableMetrics;
+        ApiKey = config.ApiKey;
+        LogFilePath = config.LogFilePath;
+        VerboseLogging = config.VerboseLogging;
+        CustomArguments = config.CustomArguments;
+    }
+
+    private static int? ParseNullableInt(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        return int.TryParse(value, out var result) ? result : null;
+    }
+
+    private static double? ParseNullableDouble(string value)
+    {
+        if (string.IsNullOrWhiteSpace(value)) return null;
+        return double.TryParse(value, out var result) ? result : null;
+    }
+
+    private async Task StartServerAsync()
+    {
+        try
+        {
+            var config = GetCurrentConfig();
+            await _serverService.StartAsync(config);
+        }
+        catch (Exception ex)
+        {
+            MessageBox.Show($"Failed to start server: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+        }
+    }
+
+    private async Task StopServerAsync()
+    {
+        await _serverService.StopAsync();
+    }
+
+    public async Task StopServerIfRunningAsync()
+    {
+        if (_serverService.IsRunning)
+        {
+            await _serverService.StopAsync();
+        }
+    }
+
+    private async Task UnloadModelAsync()
+    {
+        await _serverService.UnloadModelAsync();
+    }
+
+    private void LoadProfiles()
+    {
+        Profiles.Clear();
+        var profiles = _configService.GetAllProfiles();
+        foreach (var profile in profiles)
+        {
+            Profiles.Add(profile.Name);
+        }
+    }
+
+    private async Task SaveProfileAsync()
+    {
+        // Use ProfileNameInput first (what user typed in editable ComboBox), then fall back to SelectedProfile
+        var name = !string.IsNullOrWhiteSpace(ProfileNameInput) ? ProfileNameInput : SelectedProfile;
+        if (string.IsNullOrWhiteSpace(name))
+        {
+            MessageBox.Show("Please enter a profile name", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            return;
+        }
+
+        var config = GetCurrentConfig();
+        await _configService.SaveProfileAsync(name, config);
+        
+        // Clear the input field after saving and refresh profiles list
+        ProfileNameInput = string.Empty;
+        LoadProfiles();
+        
+        // Select the newly saved profile
+        SelectedProfile = name;
+    }
+
+    private async Task LoadProfileAsync()
+    {
+        var name = SelectedProfile;
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var config = await _configService.LoadProfileAsync(name);
+        if (config != null)
+        {
+            LoadConfigToUI(config);
+        }
+    }
+
+    private async Task DeleteProfileAsync()
+    {
+        var name = SelectedProfile;
+        if (string.IsNullOrWhiteSpace(name)) return;
+
+        var result = MessageBox.Show($"Delete profile '{name}'?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        if (result == MessageBoxResult.Yes)
+        {
+            await _configService.DeleteProfileAsync(name);
+            LoadProfiles();
+        }
+    }
+
+    private async Task ExportProfileAsync()
+    {
+        var dialog = new SaveFileDialog
+        {
+            Filter = "JSON files (*.json)|*.json",
+            Title = "Export Profile"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            var config = GetCurrentConfig();
+            await _configService.ExportProfileAsync(dialog.FileName, config);
+        }
+    }
+
+    private async Task ImportProfileAsync()
+    {
+        var dialog = new OpenFileDialog
+        {
+            Filter = "JSON files (*.json)|*.json",
+            Title = "Import Profile"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            var config = await _configService.ImportProfileAsync(dialog.FileName);
+            if (config != null)
+            {
+                LoadConfigToUI(config);
+            }
+        }
+    }
+
+    private void ClearLog()
+    {
+        LogLines.Clear();
+        LogText = string.Empty;
+    }
+
+    private void OnLogReceived(object? sender, string logLine)
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            LogLines.Add(logLine);
+            if (LogLines.Count > 1000)
+            {
+                LogLines.RemoveAt(0);
+            }
+            LogText = string.Join("\n", LogLines);
+        });
+    }
+
+    private void OnServerOutput(object? sender, string output)
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            LogLines.Add(output);
+            if (LogLines.Count > 1000)
+            {
+                LogLines.RemoveAt(0);
+            }
+            LogText = string.Join("\n", LogLines);
+        });
+    }
+
+    private void OnServerStateChanged(object? sender, bool isRunning)
+    {
+        Application.Current.Dispatcher.Invoke(() =>
+        {
+            IsServerRunning = isRunning;
+            ServerStatus = isRunning ? $"Running (PID: {_serverService.ProcessId})" : "Stopped";
+        });
+    }
+
+    protected void OnPropertyChanged([CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+}
