@@ -7,6 +7,8 @@ public class AppSettings
     public double? WindowLeft { get; set; }
     public double? WindowTop { get; set; }
 
+    public string Language { get; set; } = "en";
+
     public string ProfileNameInput { get; set; } = "";
     
     public string ExecutablePath { get; set; } = "";
@@ -32,4 +34,5 @@ public class AppSettings
     public string LogFilePath { get; set; } = "";
     public bool VerboseLogging { get; set; }
     public string CustomArguments { get; set; } = "";
+    public bool AutoRestart { get; set; }
 }

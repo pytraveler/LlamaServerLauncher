@@ -26,7 +26,10 @@ public static class CommandLineBuilder
         AddIfSet(args, "--repeat-penalty", config.RepeatPenalty?.ToString());
 
         AddBoolFlag(args, "-fa", config.FlashAttention);
-        AddBoolFlag(args, "--webui", config.EnableWebUI);
+
+        // WebUI is enabled by default, so only add --no-webui when explicitly disabled
+        if (config.EnableWebUI == false)
+            args.Add("--no-webui");
         AddBoolFlag(args, "--embedding", config.EmbeddingMode);
         AddBoolFlag(args, "--slots", config.EnableSlots);
         AddBoolFlag(args, "--metrics", config.EnableMetrics);

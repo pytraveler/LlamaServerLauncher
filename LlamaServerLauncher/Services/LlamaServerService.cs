@@ -11,8 +11,10 @@ public class LlamaServerService : ILlamaServerService, IDisposable
     private readonly LogService _logService;
     private ServerConfiguration? _currentConfig;
     private bool _disposed;
+    private bool _isStoppingIntentionally;
 
     public bool IsRunning => _process != null && !_process.HasExited;
+    public bool WasStoppedIntentionally => _isStoppingIntentionally;
     public int? ProcessId => _process?.Id;
     public string BaseUrl => _currentConfig != null 
         ? $"http://{_currentConfig.Host}:{_currentConfig.Port}" 
@@ -45,6 +47,7 @@ public class LlamaServerService : ILlamaServerService, IDisposable
         }
 
         _currentConfig = config;
+        _isStoppingIntentionally = false;
 
         var startInfo = new ProcessStartInfo
         {
@@ -89,6 +92,8 @@ public class LlamaServerService : ILlamaServerService, IDisposable
             _logService.Warning("Server is not running");
             return;
         }
+
+        _isStoppingIntentionally = true;
 
         try
         {

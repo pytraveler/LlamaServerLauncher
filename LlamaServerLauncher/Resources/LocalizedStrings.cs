@@ -1,0 +1,115 @@
+using System.ComponentModel;
+using System.Globalization;
+using System.Resources;
+
+namespace LlamaServerLauncher.Resources;
+
+public class LocalizedStrings : INotifyPropertyChanged
+{
+    private static readonly ResourceManager ResourceManager = new("LlamaServerLauncher.Resources.Strings", typeof(LocalizedStrings).Assembly);
+    
+    public event PropertyChangedEventHandler? PropertyChanged;
+
+    public string this[string key] => GetString(key);
+
+    public static string GetString(string key)
+    {
+        return ResourceManager.GetString(key, CultureInfo.CurrentUICulture) ?? key;
+    }
+
+    public static void SetCulture(CultureInfo culture)
+    {
+        CultureInfo.CurrentUICulture = culture;
+        CultureInfo.CurrentCulture = culture;
+        Instance.OnPropertyChanged(string.Empty);
+    }
+
+    public static LocalizedStrings Instance { get; } = new();
+
+    protected void OnPropertyChanged([System.Runtime.CompilerServices.CallerMemberName] string? propertyName = null)
+    {
+        PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+    }
+
+    public string WindowTitle => GetString("WindowTitle");
+    public string ServerControl => GetString("ServerControl");
+    public string StartServer => GetString("StartServer");
+    public string StopServer => GetString("StopServer");
+    public string UnloadModel => GetString("UnloadModel");
+    public string AutoRestartOnCrash => GetString("AutoRestartOnCrash");
+    public string StatusStopped => GetString("StatusStopped");
+    public string TabProfiles => GetString("TabProfiles");
+    public string TabMain => GetString("TabMain");
+    public string TabGeneration => GetString("TabGeneration");
+    public string TabOptions => GetString("TabOptions");
+    public string Profile => GetString("Profile");
+    public string Save => GetString("Save");
+    public string Load => GetString("Load");
+    public string Delete => GetString("Delete");
+    public string Export => GetString("Export");
+    public string Import => GetString("Import");
+    public string Paths => GetString("Paths");
+    public string LlamaServerExe => GetString("LlamaServerExe");
+    public string ModelM => GetString("ModelM");
+    public string ModelsDir => GetString("ModelsDir");
+    public string Browse => GetString("Browse");
+    public string NetworkSettings => GetString("NetworkSettings");
+    public string Host => GetString("Host");
+    public string Port => GetString("Port");
+    public string ModelParameters => GetString("ModelParameters");
+    public string ContextSize => GetString("ContextSize");
+    public string Threads => GetString("Threads");
+    public string GpuLayers => GetString("GpuLayers");
+    public string GenerationParameters => GetString("GenerationParameters");
+    public string Temperature => GetString("Temperature");
+    public string MaxTokens => GetString("MaxTokens");
+    public string BatchSize => GetString("BatchSize");
+    public string TopK => GetString("TopK");
+    public string TopP => GetString("TopP");
+    public string RepeatPenalty => GetString("RepeatPenalty");
+    public string AdditionalOptions => GetString("AdditionalOptions");
+    public string FlashAttention => GetString("FlashAttention");
+    public string WebUI => GetString("WebUI");
+    public string Embedding => GetString("Embedding");
+    public string Slots => GetString("Slots");
+    public string Metrics => GetString("Metrics");
+    public string ApiKey => GetString("ApiKey");
+    public string LogFile => GetString("LogFile");
+    public string VerboseLogging => GetString("VerboseLogging");
+    public string CustomArguments => GetString("CustomArguments");
+    public string ServerLog => GetString("ServerLog");
+    public string ClearLog => GetString("ClearLog");
+    public string Language => GetString("Language");
+    public string English => GetString("English");
+    public string Russian => GetString("Russian");
+
+    public static string ErrorTitle => GetString("ErrorTitle");
+    public static string WarningTitle => GetString("WarningTitle");
+    public static string ConfirmTitle => GetString("ConfirmTitle");
+    public static string FailedToStartServer => GetString("FailedToStartServer");
+    public static string PleaseEnterProfileName => GetString("PleaseEnterProfileName");
+    public static string AutoRestarting => GetString("AutoRestarting");
+    public static string FailedToAutoRestart => GetString("FailedToAutoRestart");
+
+    public string TooltipModelPath => GetString("TooltipModelPath");
+    public string TooltipModelsDir => GetString("TooltipModelsDir");
+    public string TooltipHost => GetString("TooltipHost");
+    public string TooltipPort => GetString("TooltipPort");
+    public string TooltipContextSize => GetString("TooltipContextSize");
+    public string TooltipThreads => GetString("TooltipThreads");
+    public string TooltipGpuLayers => GetString("TooltipGpuLayers");
+    public string TooltipTemperature => GetString("TooltipTemperature");
+    public string TooltipMaxTokens => GetString("TooltipMaxTokens");
+    public string TooltipBatchSize => GetString("TooltipBatchSize");
+    public string TooltipTopK => GetString("TooltipTopK");
+    public string TooltipTopP => GetString("TooltipTopP");
+    public string TooltipRepeatPenalty => GetString("TooltipRepeatPenalty");
+    public string TooltipFlashAttention => GetString("TooltipFlashAttention");
+    public string TooltipWebUI => GetString("TooltipWebUI");
+    public string TooltipEmbedding => GetString("TooltipEmbedding");
+    public string TooltipSlots => GetString("TooltipSlots");
+    public string TooltipMetrics => GetString("TooltipMetrics");
+    public string TooltipApiKey => GetString("TooltipApiKey");
+    public string TooltipLogFile => GetString("TooltipLogFile");
+    public string TooltipCustomArguments => GetString("TooltipCustomArguments");
+}

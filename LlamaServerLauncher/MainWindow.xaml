@@ -5,8 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:LlamaServerLauncher"
         xmlns:vm="clr-namespace:LlamaServerLauncher.ViewModels"
+        xmlns:res="clr-namespace:LlamaServerLauncher.Resources"
         mc:Ignorable="d"
-        Title="llama-server launcher" Height="650" Width="900"
+        Title="{Binding Localized.WindowTitle}" Height="650" Width="900"
         MinHeight="500" MinWidth="770"
         WindowStartupLocation="CenterScreen">
     <Window.DataContext>
@@ -14,6 +15,7 @@
     </Window.DataContext>
     <Window.Resources>
         <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <res:LocalizedStrings x:Key="Localized"/>
     </Window.Resources>
 
     <Grid>
@@ -21,19 +23,23 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <!-- Server Control -->
-        <GroupBox Grid.Row="0" Header="Server Control" Margin="5,5,5,0">
+        <GroupBox Grid.Row="1" Header="{Binding Localized.ServerControl}" Margin="5,5,5,0">
             <StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="5">
-                    <Button Content="Start Server" Command="{Binding StartServerCommand}" 
+                    <Button Content="{Binding Localized.StartServer}" Command="{Binding StartServerCommand}" 
                             IsEnabled="{Binding CanStartServer}" Width="120" Height="35"/>
-                    <Button Content="Stop Server" Command="{Binding StopServerCommand}" 
+                    <Button Content="{Binding Localized.StopServer}" Command="{Binding StopServerCommand}" 
                             IsEnabled="{Binding IsServerRunning}" Width="120" Height="35"/>
-                    <Button Content="Unload Model" Command="{Binding UnloadModelCommand}" 
+                    <Button Content="{Binding Localized.UnloadModel}" Command="{Binding UnloadModelCommand}" 
                             IsEnabled="{Binding IsServerRunning}" Width="120" Height="35"/>
                 </StackPanel>
+
+                <CheckBox Content="{Binding Localized.AutoRestartOnCrash}" IsChecked="{Binding AutoRestart}" 
+                          HorizontalAlignment="Center" Margin="5"/>
 
                 <TextBlock Text="{Binding ServerStatus}" 
                             HorizontalAlignment="Center" Margin="5" FontWeight="Bold"/>
@@ -47,14 +53,14 @@
         </GroupBox>
 
         <!-- TabControl -->
-        <TabControl Grid.Row="1">
+        <TabControl Grid.Row="2">
             
             <!-- Tab 1: Profiles (first) -->
-            <TabItem Header="Profiles">
+            <TabItem Header="{Binding Localized.TabProfiles}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
                         <!-- Profiles -->
-                        <GroupBox Header="Profiles">
+                        <GroupBox Header="{Binding Localized.TabProfiles}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -65,33 +71,33 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Label Grid.Column="0" Content="Profile:" VerticalAlignment="Center"/>
+                                <Label Grid.Column="0" Content="{Binding Localized.Profile}" VerticalAlignment="Center"/>
                                 <ComboBox Grid.Column="1" ItemsSource="{Binding Profiles}" 
                                         SelectedItem="{Binding SelectedProfile}" 
                                         Text="{Binding ProfileNameInput, UpdateSourceTrigger=PropertyChanged}"
                                         IsEditable="True" MinWidth="150" Margin="3"/>
-                                <Button Grid.Column="2" Content="Save" Command="{Binding SaveProfileCommand}" 
+                                <Button Grid.Column="2" Content="{Binding Localized.Save}" Command="{Binding SaveProfileCommand}" 
                                         VerticalAlignment="Center"/>
-                                <Button Grid.Column="3" Content="Load" Command="{Binding LoadProfileCommand}" 
+                                <Button Grid.Column="3" Content="{Binding Localized.Load}" Command="{Binding LoadProfileCommand}" 
                                         VerticalAlignment="Center"/>
-                                <Button Grid.Column="4" Content="Delete" Command="{Binding DeleteProfileCommand}" 
+                                <Button Grid.Column="4" Content="{Binding Localized.Delete}" Command="{Binding DeleteProfileCommand}" 
                                         VerticalAlignment="Center"/>
-                                <Button Grid.Column="5" Content="Export" Command="{Binding ExportProfileCommand}" 
+                                <Button Grid.Column="5" Content="{Binding Localized.Export}" Command="{Binding ExportProfileCommand}" 
                                         VerticalAlignment="Center"/>
                             </Grid>
                         </GroupBox>
 
- 
+  
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
             
             <!-- Tab 2: Main -->
-            <TabItem Header="Main">
+            <TabItem Header="{Binding Localized.TabMain}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
                         <!-- Paths -->
-                        <GroupBox Header="Paths">
+                        <GroupBox Header="{Binding Localized.Paths}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -104,28 +110,32 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Label Grid.Row="0" Grid.Column="0" Content="llama-server.exe:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="0" Grid.Column="0" Content="{Binding Localized.LlamaServerExe}" VerticalAlignment="Center"/>
                                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding ExecutablePath, UpdateSourceTrigger=PropertyChanged}" 
                                         Style="{StaticResource WideTextBox}" VerticalAlignment="Center"/>
-                                <Button Grid.Row="0" Grid.Column="2" Content="Browse..." Command="{Binding BrowseExecutableCommand}" 
+                                <Button Grid.Row="0" Grid.Column="2" Content="{Binding Localized.Browse}" Command="{Binding BrowseExecutableCommand}" 
                                         VerticalAlignment="Center"/>
 
-                                <Label Grid.Row="1" Grid.Column="0" Content="Model (-m):" VerticalAlignment="Center"/>
+                                <Label Grid.Row="1" Grid.Column="0" Content="{Binding Localized.ModelM}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipModelPath}"/>
                                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding ModelPath, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"/>
-                                <Button Grid.Row="1" Grid.Column="2" Content="Browse..." Command="{Binding BrowseModelCommand}" 
+                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipModelPath}"/>
+                                <Button Grid.Row="1" Grid.Column="2" Content="{Binding Localized.Browse}" Command="{Binding BrowseModelCommand}" 
                                         VerticalAlignment="Center"/>
 
-                                <Label Grid.Row="2" Grid.Column="0" Content="Models Dir (--models-dir):" VerticalAlignment="Center"/>
+                                <Label Grid.Row="2" Grid.Column="0" Content="{Binding Localized.ModelsDir}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipModelsDir}"/>
                                 <TextBox Grid.Row="2" Grid.Column="1" Text="{Binding ModelsDir, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"/>
-                                <Button Grid.Row="2" Grid.Column="2" Content="Browse..." Command="{Binding BrowseModelsDirCommand}" 
+                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipModelsDir}"/>
+                                <Button Grid.Row="2" Grid.Column="2" Content="{Binding Localized.Browse}" Command="{Binding BrowseModelsDirCommand}" 
                                         VerticalAlignment="Center"/>
                             </Grid>
                         </GroupBox>
 
                         <!-- Network Settings -->
-                        <GroupBox Header="Network Settings">
+                        <GroupBox Header="{Binding Localized.NetworkSettings}">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="150"/>
@@ -134,13 +144,17 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Label Grid.Column="0" Content="Host:" VerticalAlignment="Center"/>
+                                <Label Grid.Column="0" Content="{Binding Localized.Host}" VerticalAlignment="Center"
+                               ToolTip="{Binding Localized.TooltipHost}"/>
                                 <TextBox Grid.Column="1" Text="{Binding Host, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipHost}"/>
 
-                                <Label Grid.Column="2" Content="Port:" VerticalAlignment="Center"/>
+                                <Label Grid.Column="2" Content="{Binding Localized.Port}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipPort}"/>
                                 <TextBox Grid.Column="3" Text="{Binding Port, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipPort}"/>
                             </Grid>
                         </GroupBox>
                     </StackPanel>
@@ -148,11 +162,11 @@
             </TabItem>
             
             <!-- Tab 3: Generation -->
-            <TabItem Header="Generation">
+            <TabItem Header="{Binding Localized.TabGeneration}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
                         <!-- Model Parameters -->
-                        <GroupBox Header="Model Parameters">
+                        <GroupBox Header="{Binding Localized.ModelParameters}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -166,22 +180,28 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Label Grid.Column="0" Content="Context Size:" VerticalAlignment="Center"/>
+                                <Label Grid.Column="0" Content="{Binding Localized.ContextSize}" VerticalAlignment="Center"
+                               ToolTip="{Binding Localized.TooltipContextSize}"/>
                                 <TextBox Grid.Column="1" Text="{Binding ContextSize, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipContextSize}"/>
 
-                                <Label Grid.Column="2" Content="Threads:" VerticalAlignment="Center"/>
+                                <Label Grid.Column="2" Content="{Binding Localized.Threads}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipThreads}"/>
                                 <TextBox Grid.Column="3" Text="{Binding Threads, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipThreads}"/>
 
-                                <Label Grid.Column="4" Content="GPU Layers:" VerticalAlignment="Center"/>
+                                <Label Grid.Column="4" Content="{Binding Localized.GpuLayers}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipGpuLayers}"/>
                                 <TextBox Grid.Column="5" Text="{Binding GpuLayers, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipGpuLayers}"/>
                             </Grid>
                         </GroupBox>
 
                         <!-- Generation Parameters -->
-                        <GroupBox Header="Generation Parameters">
+                        <GroupBox Header="{Binding Localized.GenerationParameters}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -196,29 +216,41 @@
                                     <ColumnDefinition Width="*"/>
                                 </Grid.ColumnDefinitions>
 
-                                <Label Grid.Row="0" Grid.Column="0" Content="Temperature:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="0" Grid.Column="0" Content="{Binding Localized.Temperature}" VerticalAlignment="Center"
+                               ToolTip="{Binding Localized.TooltipTemperature}"/>
                                 <TextBox Grid.Row="0" Grid.Column="1" Text="{Binding Temperature, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipTemperature}"/>
 
-                                <Label Grid.Row="0" Grid.Column="2" Content="Max Tokens:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="0" Grid.Column="2" Content="{Binding Localized.MaxTokens}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipMaxTokens}"/>
                                 <TextBox Grid.Row="0" Grid.Column="3" Text="{Binding MaxTokens, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipMaxTokens}"/>
 
-                                <Label Grid.Row="0" Grid.Column="4" Content="Batch Size:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="0" Grid.Column="4" Content="{Binding Localized.BatchSize}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipBatchSize}"/>
                                 <TextBox Grid.Row="0" Grid.Column="5" Text="{Binding BatchSize, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipBatchSize}"/>
 
-                                <Label Grid.Row="1" Grid.Column="0" Content="Top-K:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="1" Grid.Column="0" Content="{Binding Localized.TopK}" VerticalAlignment="Center"
+                               ToolTip="{Binding Localized.TooltipTopK}"/>
                                 <TextBox Grid.Row="1" Grid.Column="1" Text="{Binding TopK, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipTopK}"/>
 
-                                <Label Grid.Row="1" Grid.Column="2" Content="Top-P:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="1" Grid.Column="2" Content="{Binding Localized.TopP}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipTopP}"/>
                                 <TextBox Grid.Row="1" Grid.Column="3" Text="{Binding TopP, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipTopP}"/>
 
-                                <Label Grid.Row="1" Grid.Column="4" Content="Repeat Penalty:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="1" Grid.Column="4" Content="{Binding Localized.RepeatPenalty}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipRepeatPenalty}"/>
                                 <TextBox Grid.Row="1" Grid.Column="5" Text="{Binding RepeatPenalty, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"/>
+                                        Style="{StaticResource NarrowTextBox}" HorizontalAlignment="Left" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipRepeatPenalty}"/>
                             </Grid>
                         </GroupBox>
                     </StackPanel>
@@ -226,11 +258,11 @@
             </TabItem>
             
             <!-- Tab 4: Options -->
-            <TabItem Header="Options">
+            <TabItem Header="{Binding Localized.TabOptions}">
                 <ScrollViewer VerticalScrollBarVisibility="Auto">
                     <StackPanel Margin="10">
                         <!-- Additional Options -->
-                        <GroupBox Header="Additional Options">
+                        <GroupBox Header="{Binding Localized.AdditionalOptions}">
                             <Grid>
                                 <Grid.RowDefinitions>
                                     <RowDefinition Height="Auto"/>
@@ -245,47 +277,69 @@
                                     <ColumnDefinition Width="Auto"/>
                                 </Grid.ColumnDefinitions>
 
-                                <CheckBox Grid.Row="0" Grid.Column="0" Content="Flash Attention" IsThreeState="True" 
-                                        IsChecked="{Binding FlashAttention}" Margin="10,3"/>
-                                <CheckBox Grid.Row="0" Grid.Column="1" Content="WebUI" IsThreeState="True" 
-                                        IsChecked="{Binding EnableWebUI}" Margin="10,3"/>
-                                <CheckBox Grid.Row="0" Grid.Column="2" Content="Embedding" IsThreeState="True" 
-                                        IsChecked="{Binding EmbeddingMode}" Margin="10,3"/>
-                                <CheckBox Grid.Row="0" Grid.Column="3" Content="Slots" IsThreeState="True" 
-                                        IsChecked="{Binding EnableSlots}" Margin="10,3"/>
-                                <CheckBox Grid.Row="0" Grid.Column="4" Content="Metrics" IsThreeState="True" 
-                                        IsChecked="{Binding EnableMetrics}" Margin="10,3"/>
+                                <CheckBox Grid.Row="0" Grid.Column="0" Content="{Binding Localized.FlashAttention}" IsThreeState="True" 
+                                        IsChecked="{Binding FlashAttention}" Margin="10,3"
+                                        ToolTip="{Binding Localized.TooltipFlashAttention}"/>
+                                <CheckBox Grid.Row="0" Grid.Column="1" Content="{Binding Localized.WebUI}" IsThreeState="True" 
+                                        IsChecked="{Binding EnableWebUI}" Margin="10,3"
+                                        ToolTip="{Binding Localized.TooltipWebUI}"/>
+                                <CheckBox Grid.Row="0" Grid.Column="2" Content="{Binding Localized.Embedding}" IsThreeState="True" 
+                                        IsChecked="{Binding EmbeddingMode}" Margin="10,3"
+                                        ToolTip="{Binding Localized.TooltipEmbedding}"/>
+                                <CheckBox Grid.Row="0" Grid.Column="3" Content="{Binding Localized.Slots}" IsThreeState="True" 
+                                        IsChecked="{Binding EnableSlots}" Margin="10,3"
+                                        ToolTip="{Binding Localized.TooltipSlots}"/>
+                                <CheckBox Grid.Row="0" Grid.Column="4" Content="{Binding Localized.Metrics}" IsThreeState="True" 
+                                        IsChecked="{Binding EnableMetrics}" Margin="10,3"
+                                        ToolTip="{Binding Localized.TooltipMetrics}"/>
 
-                                <Label Grid.Row="1" Grid.Column="0" Content="API Key:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="1" Grid.Column="0" Content="{Binding Localized.ApiKey}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipApiKey}"/>
                                 <TextBox Grid.Row="1" Grid.Column="1" Grid.ColumnSpan="2" 
                                         Text="{Binding ApiKey, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"/>
+                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipApiKey}"/>
 
-                                <Label Grid.Row="2" Grid.Column="0" Content="Log File:" VerticalAlignment="Center"/>
+                                <Label Grid.Row="2" Grid.Column="0" Content="{Binding Localized.LogFile}" VerticalAlignment="Center"
+                                       ToolTip="{Binding Localized.TooltipLogFile}"/>
                                 <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" 
                                         Text="{Binding LogFilePath, UpdateSourceTrigger=PropertyChanged}" 
-                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"/>
-                                <Button Grid.Row="2" Grid.Column="3" Content="Browse..." Command="{Binding BrowseLogFileCommand}" 
+                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipLogFile}"/>
+                                <Button Grid.Row="2" Grid.Column="3" Content="{Binding Localized.Browse}" Command="{Binding BrowseLogFileCommand}" 
                                         VerticalAlignment="Center"/>
 
-                                <CheckBox Grid.Row="1" Grid.Column="3" Content="Verbose Logging" 
+                                <CheckBox Grid.Row="1" Grid.Column="3" Content="{Binding Localized.VerboseLogging}" 
                                         IsChecked="{Binding VerboseLogging}" Margin="10,3"/>
                             </Grid>
                         </GroupBox>
 
                         <!-- Custom Arguments -->
-                        <GroupBox Header="Custom Arguments">
+                        <GroupBox Header="{Binding Localized.CustomArguments}">
                             <TextBox Text="{Binding CustomArguments, UpdateSourceTrigger=PropertyChanged}" 
                                     AcceptsReturn="True" TextWrapping="Wrap" Height="60"
-                                    VerticalScrollBarVisibility="Auto"/>
+                                    VerticalScrollBarVisibility="Auto"
+                                    ToolTip="{Binding Localized.TooltipCustomArguments}"/>
                         </GroupBox>
                     </StackPanel>
                 </ScrollViewer>
             </TabItem>
         </TabControl>
 
+        <!-- Language Selector -->
+        <Grid Grid.Row="0">
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" Margin="5,0,5,0">
+                <Label Content="{Binding Localized.Language}" VerticalAlignment="Center"/>
+                <ComboBox ItemsSource="{Binding AvailableLanguages}" 
+                          SelectedValue="{Binding SelectedLanguage}"
+                          SelectedValuePath="Code"
+                          DisplayMemberPath="Name"
+                          Width="100" VerticalAlignment="Center"/>
+            </StackPanel>
+        </Grid>
+
         <!-- Панель лога - всегда видна внизу -->
-        <GroupBox Grid.Row="2" Header="Server Log" Margin="5,0,5,5">
+        <GroupBox Grid.Row="3" Header="{Binding Localized.ServerLog}" Margin="5,0,5,5">
             <Grid>
                 <TextBox x:Name="LogTextBox"
                          Text="{Binding LogText, Mode=OneWay}"
@@ -297,7 +351,7 @@
                          VerticalScrollBarVisibility="Auto"
                          HorizontalScrollBarVisibility="Auto"
                          MaxHeight="200"/>
-                <Button Content="Clear Log" 
+                <Button Content="{Binding Localized.ClearLog}" 
                         Command="{Binding ClearLogCommand}"
                         HorizontalAlignment="Right" 
                         VerticalAlignment="Top" 

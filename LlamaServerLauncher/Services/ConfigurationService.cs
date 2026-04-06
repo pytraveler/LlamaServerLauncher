@@ -11,7 +11,8 @@ public class ConfigurationService
     private readonly LogService _logService;
     private static readonly JsonSerializerOptions JsonOptions = new()
     {
-        WriteIndented = true
+        WriteIndented = true,
+        PropertyNameCaseInsensitive = true
     };
 
     public ConfigurationService(LogService logService)

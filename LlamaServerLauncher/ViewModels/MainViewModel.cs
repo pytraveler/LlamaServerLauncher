@@ -1,9 +1,11 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Runtime.CompilerServices;
 using System.Windows;
 using System.Windows.Input;
 using LlamaServerLauncher.Models;
+using LlamaServerLauncher.Resources;
 using LlamaServerLauncher.Services;
 using Microsoft.Win32;
 using OpenFileDialog = Microsoft.Win32.OpenFileDialog;
@@ -20,6 +22,36 @@ public class MainViewModel : INotifyPropertyChanged
     private readonly LlamaServerService _serverService;
     private readonly ConfigurationService _configService;
     private readonly LogService _logService;
+
+    public LocalizedStrings Localized { get; } = LocalizedStrings.Instance;
+
+    private string _selectedLanguage = "en";
+    public string SelectedLanguage
+    {
+        get => _selectedLanguage;
+        set
+        {
+            if (_selectedLanguage != value)
+            {
+                _selectedLanguage = value;
+                OnPropertyChanged();
+                ChangeLanguage(value);
+            }
+        }
+    }
+
+    public List<LanguageOption> AvailableLanguages { get; } = new()
+    {
+        new LanguageOption { Code = "en", Name = "English" },
+        new LanguageOption { Code = "ru", Name = "Русский" }
+    };
+
+    private void ChangeLanguage(string languageCode)
+    {
+        var culture = new CultureInfo(languageCode);
+        LocalizedStrings.SetCulture(culture);
+        OnPropertyChanged(nameof(Localized));
+    }
 
     private string _executablePath = string.Empty;
     private string _modelPath = string.Empty;
@@ -44,6 +76,7 @@ public class MainViewModel : INotifyPropertyChanged
     private string _logFilePath = string.Empty;
     private bool _verboseLogging;
     private string _customArguments = string.Empty;
+    private bool _autoRestart;
     private string _selectedProfile = string.Empty;
     private string _profileNameInput = string.Empty;
     private bool _isServerRunning;
@@ -67,6 +100,8 @@ public class MainViewModel : INotifyPropertyChanged
 
         Profiles = new ObservableCollection<string>();
 
+        ChangeLanguage(_selectedLanguage);
+
         BrowseExecutableCommand = new RelayCommand(BrowseExecutable);
         BrowseModelCommand = new RelayCommand(BrowseModel);
         BrowseModelsDirCommand = new RelayCommand(BrowseModelsDir);
@@ -88,6 +123,8 @@ public class MainViewModel : INotifyPropertyChanged
 
     public void ApplyAppSettings(AppSettings settings)
     {
+        SelectedLanguage = string.IsNullOrEmpty(settings.Language) ? "en" : settings.Language;
+        
         ProfileNameInput = settings.ProfileNameInput;
         ExecutablePath = settings.ExecutablePath;
         ModelPath = settings.ModelPath;
@@ -112,12 +149,14 @@ public class MainViewModel : INotifyPropertyChanged
         LogFilePath = settings.LogFilePath;
         VerboseLogging = settings.VerboseLogging;
         CustomArguments = settings.CustomArguments;
+        AutoRestart = settings.AutoRestart;
     }
 
     public AppSettings GetAppSettings()
     {
         return new AppSettings
         {
+            Language = SelectedLanguage,
             ProfileNameInput = ProfileNameInput,
             ExecutablePath = ExecutablePath,
             ModelPath = ModelPath,
@@ -141,7 +180,8 @@ public class MainViewModel : INotifyPropertyChanged
             ApiKey = ApiKey,
             LogFilePath = LogFilePath,
             VerboseLogging = VerboseLogging,
-            CustomArguments = CustomArguments
+            CustomArguments = CustomArguments,
+            AutoRestart = AutoRestart
         };
     }
 
@@ -275,6 +315,12 @@ public class MainViewModel : INotifyPropertyChanged
     {
         get => _verboseLogging;
         set { _verboseLogging = value; OnPropertyChanged(); UpdateCurrentCommand(); }
+    }
+
+    public bool AutoRestart
+    {
+        get => _autoRestart;
+        set { _autoRestart = value; OnPropertyChanged(); }
     }
 
     public string CustomArguments
@@ -486,7 +532,8 @@ public class MainViewModel : INotifyPropertyChanged
         }
         catch (Exception ex)
         {
-            MessageBox.Show($"Failed to start server: {ex.Message}", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+            MessageBox.Show(string.Format(LocalizedStrings.FailedToStartServer, ex.Message), 
+                LocalizedStrings.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
         }
     }
 
@@ -524,7 +571,7 @@ public class MainViewModel : INotifyPropertyChanged
         var name = !string.IsNullOrWhiteSpace(ProfileNameInput) ? ProfileNameInput : SelectedProfile;
         if (string.IsNullOrWhiteSpace(name))
         {
-            MessageBox.Show("Please enter a profile name", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
+            MessageBox.Show(LocalizedStrings.PleaseEnterProfileName, LocalizedStrings.WarningTitle, MessageBoxButton.OK, MessageBoxImage.Warning);
             return;
         }
 
@@ -556,7 +603,8 @@ public class MainViewModel : INotifyPropertyChanged
         var name = SelectedProfile;
         if (string.IsNullOrWhiteSpace(name)) return;
 
-        var result = MessageBox.Show($"Delete profile '{name}'?", "Confirm", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        var result = MessageBox.Show(string.Format(LocalizedStrings.GetString("ConfirmDelete"), name), 
+                LocalizedStrings.ConfirmTitle, MessageBoxButton.YesNo, MessageBoxImage.Question);
         if (result == MessageBoxResult.Yes)
         {
             await _configService.DeleteProfileAsync(name);
@@ -627,12 +675,37 @@ public class MainViewModel : INotifyPropertyChanged
         });
     }
 
-    private void OnServerStateChanged(object? sender, bool isRunning)
+    private bool _isAutoRestarting;
+
+    private async void OnServerStateChanged(object? sender, bool isRunning)
     {
-        Application.Current.Dispatcher.Invoke(() =>
+        await Application.Current.Dispatcher.InvokeAsync(async () =>
         {
             IsServerRunning = isRunning;
-            ServerStatus = isRunning ? $"Running (PID: {_serverService.ProcessId})" : "Stopped";
+            ServerStatus = isRunning 
+                ? string.Format(Resources.LocalizedStrings.GetString("StatusRunning"), _serverService.ProcessId) 
+                : Localized.StatusStopped;
+
+            if (!isRunning && AutoRestart && !_isAutoRestarting && !_serverService.WasStoppedIntentionally)
+            {
+                _logService.AppLog("Server exited unexpectedly. Auto-restarting...");
+                _isAutoRestarting = true;
+                await Task.Delay(1000);
+                try
+                {
+                    var config = GetCurrentConfig();
+                    await _serverService.StartAsync(config);
+                }
+                catch (Exception ex)
+                {
+                    MessageBox.Show(string.Format(LocalizedStrings.FailedToAutoRestart, ex.Message), 
+                        LocalizedStrings.ErrorTitle, MessageBoxButton.OK, MessageBoxImage.Error);
+                }
+                finally
+                {
+                    _isAutoRestarting = false;
+                }
+            }
         });
     }
 
@@ -640,4 +713,10 @@ public class MainViewModel : INotifyPropertyChanged
     {
         PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
     }
+}
+
+public class LanguageOption
+{
+    public string Code { get; set; } = "";
+    public string Name { get; set; } = "";
 }

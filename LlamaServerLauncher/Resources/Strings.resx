@@ -1,0 +1,340 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+
+  <!-- Window -->
+  <data name="WindowTitle" xml:space="preserve">
+    <value>llama-server launcher</value>
+  </data>
+
+  <!-- Server Control -->
+  <data name="ServerControl" xml:space="preserve">
+    <value>Server Control</value>
+  </data>
+  <data name="StartServer" xml:space="preserve">
+    <value>Start Server</value>
+  </data>
+  <data name="StopServer" xml:space="preserve">
+    <value>Stop Server</value>
+  </data>
+  <data name="UnloadModel" xml:space="preserve">
+    <value>Unload Model</value>
+  </data>
+  <data name="AutoRestartOnCrash" xml:space="preserve">
+    <value>Auto-restart on crash</value>
+  </data>
+  <data name="StatusStopped" xml:space="preserve">
+    <value>Stopped</value>
+  </data>
+  <data name="StatusRunning" xml:space="preserve">
+    <value>Running (PID: {0})</value>
+  </data>
+
+  <!-- Tabs -->
+  <data name="TabProfiles" xml:space="preserve">
+    <value>Profiles</value>
+  </data>
+  <data name="TabMain" xml:space="preserve">
+    <value>Main</value>
+  </data>
+  <data name="TabGeneration" xml:space="preserve">
+    <value>Generation</value>
+  </data>
+  <data name="TabOptions" xml:space="preserve">
+    <value>Options</value>
+  </data>
+
+  <!-- Profiles -->
+  <data name="Profile" xml:space="preserve">
+    <value>Profile:</value>
+  </data>
+  <data name="Save" xml:space="preserve">
+    <value>Save</value>
+  </data>
+  <data name="Load" xml:space="preserve">
+    <value>Load</value>
+  </data>
+  <data name="Delete" xml:space="preserve">
+    <value>Delete</value>
+  </data>
+  <data name="Export" xml:space="preserve">
+    <value>Export</value>
+  </data>
+  <data name="Import" xml:space="preserve">
+    <value>Import</value>
+  </data>
+  <data name="EnterProfileName" xml:space="preserve">
+    <value>Please enter a profile name</value>
+  </data>
+  <data name="ConfirmDelete" xml:space="preserve">
+    <value>Delete profile '{0}'?</value>
+  </data>
+
+  <!-- Paths -->
+  <data name="Paths" xml:space="preserve">
+    <value>Paths</value>
+  </data>
+  <data name="LlamaServerExe" xml:space="preserve">
+    <value>llama-server.exe:</value>
+  </data>
+  <data name="ModelM" xml:space="preserve">
+    <value>Model (-m):</value>
+  </data>
+  <data name="ModelsDir" xml:space="preserve">
+    <value>Models Dir (--models-dir):</value>
+  </data>
+  <data name="Browse" xml:space="preserve">
+    <value>Browse...</value>
+  </data>
+
+  <!-- Network Settings -->
+  <data name="NetworkSettings" xml:space="preserve">
+    <value>Network Settings</value>
+  </data>
+  <data name="Host" xml:space="preserve">
+    <value>Host:</value>
+  </data>
+  <data name="Port" xml:space="preserve">
+    <value>Port:</value>
+  </data>
+
+  <!-- Model Parameters -->
+  <data name="ModelParameters" xml:space="preserve">
+    <value>Model Parameters</value>
+  </data>
+  <data name="ContextSize" xml:space="preserve">
+    <value>Context Size:</value>
+  </data>
+  <data name="Threads" xml:space="preserve">
+    <value>Threads:</value>
+  </data>
+  <data name="GpuLayers" xml:space="preserve">
+    <value>GPU Layers:</value>
+  </data>
+
+  <!-- Generation Parameters -->
+  <data name="GenerationParameters" xml:space="preserve">
+    <value>Generation Parameters</value>
+  </data>
+  <data name="Temperature" xml:space="preserve">
+    <value>Temperature:</value>
+  </data>
+  <data name="MaxTokens" xml:space="preserve">
+    <value>Max Tokens:</value>
+  </data>
+  <data name="BatchSize" xml:space="preserve">
+    <value>Batch Size:</value>
+  </data>
+  <data name="TopK" xml:space="preserve">
+    <value>Top-K:</value>
+  </data>
+  <data name="TopP" xml:space="preserve">
+    <value>Top-P:</value>
+  </data>
+  <data name="RepeatPenalty" xml:space="preserve">
+    <value>Repeat Penalty:</value>
+  </data>
+
+  <!-- Additional Options -->
+  <data name="AdditionalOptions" xml:space="preserve">
+    <value>Additional Options</value>
+  </data>
+  <data name="FlashAttention" xml:space="preserve">
+    <value>Flash Attention</value>
+  </data>
+  <data name="WebUI" xml:space="preserve">
+    <value>WebUI</value>
+  </data>
+  <data name="Embedding" xml:space="preserve">
+    <value>Embedding</value>
+  </data>
+  <data name="Slots" xml:space="preserve">
+    <value>Slots</value>
+  </data>
+  <data name="Metrics" xml:space="preserve">
+    <value>Metrics</value>
+  </data>
+  <data name="ApiKey" xml:space="preserve">
+    <value>API Key:</value>
+  </data>
+  <data name="LogFile" xml:space="preserve">
+    <value>Log File:</value>
+  </data>
+  <data name="VerboseLogging" xml:space="preserve">
+    <value>Verbose Logging</value>
+  </data>
+
+  <!-- Custom Arguments -->
+  <data name="CustomArguments" xml:space="preserve">
+    <value>Custom Arguments</value>
+  </data>
+
+  <!-- Server Log -->
+  <data name="ServerLog" xml:space="preserve">
+    <value>Server Log</value>
+  </data>
+  <data name="ClearLog" xml:space="preserve">
+    <value>Clear Log</value>
+  </data>
+
+  <!-- Messages -->
+  <data name="ErrorTitle" xml:space="preserve">
+    <value>Error</value>
+  </data>
+  <data name="WarningTitle" xml:space="preserve">
+    <value>Warning</value>
+  </data>
+  <data name="ConfirmTitle" xml:space="preserve">
+    <value>Confirm</value>
+  </data>
+  <data name="FailedToStartServer" xml:space="preserve">
+    <value>Failed to start server: {0}</value>
+  </data>
+  <data name="PleaseEnterProfileName" xml:space="preserve">
+    <value>Please enter a profile name</value>
+  </data>
+  <data name="AutoRestarting" xml:space="preserve">
+    <value>Server exited unexpectedly. Auto-restarting...</value>
+  </data>
+  <data name="FailedToAutoRestart" xml:space="preserve">
+    <value>Failed to auto-restart server: {0}</value>
+  </data>
+
+  <!-- Language -->
+  <data name="Language" xml:space="preserve">
+    <value>Language:</value>
+  </data>
+  <data name="English" xml:space="preserve">
+    <value>English</value>
+  </data>
+  <data name="Russian" xml:space="preserve">
+    <value>Русский</value>
+  </data>
+
+  <!-- Notify Icon -->
+  <data name="Show" xml:space="preserve">
+    <value>Show</value>
+  </data>
+  <data name="CloseProgram" xml:space="preserve">
+    <value>Close program</value>
+  </data>
+
+  <!-- ToolTips -->
+  <data name="TooltipModelPath" xml:space="preserve">
+    <value>model path to load</value>
+  </data>
+  <data name="TooltipModelsDir" xml:space="preserve">
+    <value>directory containing models for the router server (default: disabled)</value>
+  </data>
+  <data name="TooltipHost" xml:space="preserve">
+    <value>ip address to listen, or bind to an UNIX socket if the address ends with .sock (default: 127.0.0.1)</value>
+  </data>
+  <data name="TooltipPort" xml:space="preserve">
+    <value>port to listen (default: 8080)</value>
+  </data>
+  <data name="TooltipContextSize" xml:space="preserve">
+    <value>size of the prompt context (default: 0, 0 = loaded from model)</value>
+  </data>
+  <data name="TooltipThreads" xml:space="preserve">
+    <value>number of CPU threads to use during generation (default: -1)</value>
+  </data>
+  <data name="TooltipGpuLayers" xml:space="preserve">
+    <value>max. number of layers to store in VRAM, either an exact number, 'auto', or 'all' (default: auto)</value>
+  </data>
+  <data name="TooltipTemperature" xml:space="preserve">
+    <value>temperature (default: 0.80)</value>
+  </data>
+  <data name="TooltipMaxTokens" xml:space="preserve">
+    <value>number of tokens to predict (default: -1, -1 = infinity)</value>
+  </data>
+  <data name="TooltipBatchSize" xml:space="preserve">
+    <value>logical maximum batch size (default: 2048)</value>
+  </data>
+  <data name="TooltipTopK" xml:space="preserve">
+    <value>top-k sampling (default: 40, 0 = disabled)</value>
+  </data>
+  <data name="TooltipTopP" xml:space="preserve">
+    <value>top-p sampling (default: 0.95, 1.0 = disabled)</value>
+  </data>
+  <data name="TooltipRepeatPenalty" xml:space="preserve">
+    <value>penalize repeat sequence of tokens (default: 1.00, 1.0 = disabled)</value>
+  </data>
+  <data name="TooltipFlashAttention" xml:space="preserve">
+    <value>set Flash Attention use ('on', 'off', or 'auto', default: 'auto')</value>
+  </data>
+  <data name="TooltipWebUI" xml:space="preserve">
+    <value>whether to enable the Web UI (default: enabled)</value>
+  </data>
+  <data name="TooltipEmbedding" xml:space="preserve">
+    <value>restrict to only support embedding use case; use only with dedicated embedding models (default: disabled)</value>
+  </data>
+  <data name="TooltipSlots" xml:space="preserve">
+    <value>expose slots monitoring endpoint (default: enabled)</value>
+  </data>
+  <data name="TooltipMetrics" xml:space="preserve">
+    <value>enable prometheus compatible metrics endpoint (default: disabled)</value>
+  </data>
+  <data name="TooltipApiKey" xml:space="preserve">
+    <value>API key to use for authentication, multiple keys can be provided as a comma-separated list (default: none)</value>
+  </data>
+  <data name="TooltipLogFile" xml:space="preserve">
+    <value>Log to file</value>
+  </data>
+  <data name="TooltipCustomArguments" xml:space="preserve">
+    <value>Additional command-line arguments to pass to llama-server</value>
+  </data>
+</root>

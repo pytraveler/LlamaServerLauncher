@@ -40,15 +40,15 @@ public partial class App : System.Windows.Application
     private void CreateNotifyIcon()
     {
         var contextMenu = new System.Windows.Forms.ContextMenuStrip();
-        contextMenu.Items.Add("Show", null, OnRestore);
+        contextMenu.Items.Add(LlamaServerLauncher.Resources.LocalizedStrings.GetString("Show"), null, OnRestore);
         contextMenu.Items.Add("-");
-        contextMenu.Items.Add("Close program", null, OnExit);
+        contextMenu.Items.Add(LlamaServerLauncher.Resources.LocalizedStrings.GetString("CloseProgram"), null, OnExit);
 
         _notifyIcon = new System.Windows.Forms.NotifyIcon
         {
             Icon = LoadIcon(),
             Visible = true,
-            Text = "llama-server launcher",
+            Text = LlamaServerLauncher.Resources.LocalizedStrings.GetString("WindowTitle"),
             ContextMenuStrip = contextMenu
         };
         
