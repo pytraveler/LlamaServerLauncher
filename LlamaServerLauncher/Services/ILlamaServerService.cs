@@ -5,6 +5,7 @@ namespace LlamaServerLauncher.Services;
 public interface ILlamaServerService
 {
     bool IsRunning { get; }
+    bool IsSingleModelMode { get; }
     int? ProcessId { get; }
     string BaseUrl { get; }
 

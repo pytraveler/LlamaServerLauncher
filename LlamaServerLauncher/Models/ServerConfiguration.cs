@@ -37,6 +37,21 @@ public class ServerConfiguration
     [JsonPropertyName("batchSize")]
     public int? BatchSize { get; set; }
 
+    [JsonPropertyName("uBatchSize")]
+    public int? UBatchSize { get; set; }
+
+    [JsonPropertyName("minP")]
+    public double? MinP { get; set; }
+
+    [JsonPropertyName("mmprojPath")]
+    public string MmprojPath { get; set; } = string.Empty;
+
+    [JsonPropertyName("cacheTypeK")]
+    public string CacheTypeK { get; set; } = string.Empty;
+
+    [JsonPropertyName("cacheTypeV")]
+    public string CacheTypeV { get; set; } = string.Empty;
+
     [JsonPropertyName("topK")]
     public int? TopK { get; set; }
 
@@ -88,6 +103,11 @@ public class ServerConfiguration
             Temperature = Temperature,
             MaxTokens = MaxTokens,
             BatchSize = BatchSize,
+            UBatchSize = UBatchSize,
+            MinP = MinP,
+            MmprojPath = MmprojPath,
+            CacheTypeK = CacheTypeK,
+            CacheTypeV = CacheTypeV,
             TopK = TopK,
             TopP = TopP,
             RepeatPenalty = RepeatPenalty,
@@ -102,4 +122,87 @@ public class ServerConfiguration
             CustomArguments = CustomArguments
         };
     }
+
+    public static readonly Dictionary<string, ArgumentMapping> KnownArguments = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["-m"] = new("modelPath", ArgType.String),
+        ["--model"] = new("modelPath", ArgType.String),
+        ["--models-dir"] = new("ModelsDir", ArgType.String),
+        ["--host"] = new("Host", ArgType.String),
+        ["--port"] = new("Port", ArgType.Int),
+        ["-c"] = new("ContextSize", ArgType.Int),
+        ["--ctx-size"] = new("ContextSize", ArgType.Int),
+        ["-t"] = new("Threads", ArgType.Int),
+        ["--threads"] = new("Threads", ArgType.Int),
+        ["-ngl"] = new("GpuLayers", ArgType.Int),
+        ["--gpu-layers"] = new("GpuLayers", ArgType.Int),
+        ["--n-gpu-layers"] = new("GpuLayers", ArgType.Int),
+        ["--temp"] = new("Temperature", ArgType.Double),
+        ["--temperature"] = new("Temperature", ArgType.Double),
+        ["-n"] = new("MaxTokens", ArgType.Int),
+        ["--predict"] = new("MaxTokens", ArgType.Int),
+        ["--n-predict"] = new("MaxTokens", ArgType.Int),
+        ["-b"] = new("BatchSize", ArgType.Int),
+        ["--batch-size"] = new("BatchSize", ArgType.Int),
+        ["-ub"] = new("UBatchSize", ArgType.Int),
+        ["--ubatch-size"] = new("UBatchSize", ArgType.Int),
+        ["--min-p"] = new("MinP", ArgType.Double),
+        ["-mm"] = new("MmprojPath", ArgType.String),
+        ["--mmproj"] = new("MmprojPath", ArgType.String),
+        ["-ctk"] = new("CacheTypeK", ArgType.String),
+        ["--cache-type-k"] = new("CacheTypeK", ArgType.String),
+        ["-ctv"] = new("CacheTypeV", ArgType.String),
+        ["--cache-type-v"] = new("CacheTypeV", ArgType.String),
+        ["--top-k"] = new("TopK", ArgType.Int),
+        ["--top-p"] = new("TopP", ArgType.Double),
+        ["--repeat-penalty"] = new("RepeatPenalty", ArgType.Double),
+        ["-fa"] = new("FlashAttention", ArgType.BoolOnOff),
+        ["--flash-attn"] = new("FlashAttention", ArgType.BoolOnOff),
+        ["--webui"] = new("EnableWebUI", ArgType.BoolFlag),
+        ["--no-webui"] = new("EnableWebUI", ArgType.BoolFlagInverted),
+        ["--embedding"] = new("EmbeddingMode", ArgType.BoolFlag),
+        ["--embeddings"] = new("EmbeddingMode", ArgType.BoolFlag),
+        ["--slots"] = new("EnableSlots", ArgType.BoolFlag),
+        ["--no-slots"] = new("EnableSlots", ArgType.BoolFlagInverted),
+        ["--metrics"] = new("EnableMetrics", ArgType.BoolFlag),
+        ["--api-key"] = new("ApiKey", ArgType.String),
+        ["--log-file"] = new("LogFilePath", ArgType.String),
+        ["-v"] = new("VerboseLogging", ArgType.BoolSimple),
+        ["--verbose"] = new("VerboseLogging", ArgType.BoolSimple),
+    };
+
+    public static readonly Dictionary<string, string[]> MutuallyExclusiveGroups = new()
+    {
+        ["-fa"] = new[] { "-fa", "--flash-attn" },
+        ["--flash-attn"] = new[] { "-fa", "--flash-attn" },
+        ["--webui"] = new[] { "--webui", "--no-webui" },
+        ["--no-webui"] = new[] { "--webui", "--no-webui" },
+        ["--embedding"] = new[] { "--embedding", "--embeddings" },
+        ["--embeddings"] = new[] { "--embedding", "--embeddings" },
+        ["--slots"] = new[] { "--slots", "--no-slots" },
+        ["--no-slots"] = new[] { "--slots", "--no-slots" },
+    };
+}
+
+public class ArgumentMapping
+{
+    public string PropertyName { get; }
+    public ArgType Type { get; }
+
+    public ArgumentMapping(string propertyName, ArgType type)
+    {
+        PropertyName = propertyName;
+        Type = type;
+    }
+}
+
+public enum ArgType
+{
+    String,
+    Int,
+    Double,
+    BoolOnOff,
+    BoolFlag,
+    BoolFlagInverted,
+    BoolSimple
 }

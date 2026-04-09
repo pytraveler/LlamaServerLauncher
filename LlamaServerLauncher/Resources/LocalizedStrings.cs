@@ -8,6 +8,8 @@ public class LocalizedStrings : INotifyPropertyChanged
 {
     private static readonly ResourceManager ResourceManager = new("LlamaServerLauncher.Resources.Strings", typeof(LocalizedStrings).Assembly);
     
+    public static event Action? CultureChanged;
+    
     public event PropertyChangedEventHandler? PropertyChanged;
 
     public string this[string key] => GetString(key);
@@ -22,6 +24,7 @@ public class LocalizedStrings : INotifyPropertyChanged
         CultureInfo.CurrentUICulture = culture;
         CultureInfo.CurrentCulture = culture;
         Instance.OnPropertyChanged(string.Empty);
+        CultureChanged?.Invoke();
     }
 
     public static LocalizedStrings Instance { get; } = new();
@@ -64,6 +67,11 @@ public class LocalizedStrings : INotifyPropertyChanged
     public string Temperature => GetString("Temperature");
     public string MaxTokens => GetString("MaxTokens");
     public string BatchSize => GetString("BatchSize");
+    public string UBatchSize => GetString("UBatchSize");
+    public string MinP => GetString("MinP");
+    public string MMProj => GetString("MMProj");
+    public string CacheTypeK => GetString("CacheTypeK");
+    public string CacheTypeV => GetString("CacheTypeV");
     public string TopK => GetString("TopK");
     public string TopP => GetString("TopP");
     public string RepeatPenalty => GetString("RepeatPenalty");
@@ -79,6 +87,7 @@ public class LocalizedStrings : INotifyPropertyChanged
     public string CustomArguments => GetString("CustomArguments");
     public string ServerLog => GetString("ServerLog");
     public string ClearLog => GetString("ClearLog");
+    public string AutoScrollLog => GetString("AutoScrollLog");
     public string Language => GetString("Language");
     public string English => GetString("English");
     public string Russian => GetString("Russian");
@@ -88,8 +97,13 @@ public class LocalizedStrings : INotifyPropertyChanged
     public static string ConfirmTitle => GetString("ConfirmTitle");
     public static string FailedToStartServer => GetString("FailedToStartServer");
     public static string PleaseEnterProfileName => GetString("PleaseEnterProfileName");
+    public static string UnsavedChangesTitle => GetString("UnsavedChangesTitle");
+    public static string UnsavedChangesMessage => GetString("UnsavedChangesMessage");
+    public static string UnsavedChangesWarning => GetString("UnsavedChangesWarning");
     public static string AutoRestarting => GetString("AutoRestarting");
     public static string FailedToAutoRestart => GetString("FailedToAutoRestart");
+    public static string ConfirmCloseTitle => GetString("ConfirmCloseTitle");
+    public static string ConfirmCloseMessage => GetString("ConfirmCloseMessage");
 
     public string TooltipModelPath => GetString("TooltipModelPath");
     public string TooltipModelsDir => GetString("TooltipModelsDir");
@@ -101,6 +115,11 @@ public class LocalizedStrings : INotifyPropertyChanged
     public string TooltipTemperature => GetString("TooltipTemperature");
     public string TooltipMaxTokens => GetString("TooltipMaxTokens");
     public string TooltipBatchSize => GetString("TooltipBatchSize");
+    public string TooltipUBatchSize => GetString("TooltipUBatchSize");
+    public string TooltipMinP => GetString("TooltipMinP");
+    public string TooltipMMProj => GetString("TooltipMMProj");
+    public string TooltipCacheTypeK => GetString("TooltipCacheTypeK");
+    public string TooltipCacheTypeV => GetString("TooltipCacheTypeV");
     public string TooltipTopK => GetString("TooltipTopK");
     public string TooltipTopP => GetString("TooltipTopP");
     public string TooltipRepeatPenalty => GetString("TooltipRepeatPenalty");

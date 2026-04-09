@@ -14,6 +14,7 @@ public class LlamaServerService : ILlamaServerService, IDisposable
     private bool _isStoppingIntentionally;
 
     public bool IsRunning => _process != null && !_process.HasExited;
+    public bool IsSingleModelMode { get; private set; }
     public bool WasStoppedIntentionally => _isStoppingIntentionally;
     public int? ProcessId => _process?.Id;
     public string BaseUrl => _currentConfig != null 
@@ -48,6 +49,7 @@ public class LlamaServerService : ILlamaServerService, IDisposable
 
         _currentConfig = config;
         _isStoppingIntentionally = false;
+        IsSingleModelMode = !string.IsNullOrEmpty(config.ModelPath);
 
         var startInfo = new ProcessStartInfo
         {
@@ -101,8 +103,18 @@ public class LlamaServerService : ILlamaServerService, IDisposable
 
             if (_process != null && !_process.HasExited)
             {
+                // Kill the process tree first
                 _process.Kill(entireProcessTree: true);
-                await _process.WaitForExitAsync();
+                
+                // Wait briefly for process to exit, but don't block too long
+                try
+                {
+                    await Task.Run(() => _process.WaitForExit(3000));
+                }
+                catch (InvalidOperationException)
+                {
+                    // Process already exited
+                }
             }
 
             _logService.Info("Server stopped");
@@ -114,8 +126,11 @@ public class LlamaServerService : ILlamaServerService, IDisposable
         }
         finally
         {
-            _process?.Dispose();
-            _process = null;
+            if (_process != null)
+            {
+                _process.Dispose();
+                _process = null;
+            }
         }
     }
 
@@ -129,15 +144,63 @@ public class LlamaServerService : ILlamaServerService, IDisposable
 
         try
         {
+            // First, get the list of models and find which ones are loaded
             using var client = new HttpClient { Timeout = TimeSpan.FromSeconds(10) };
-            var response = await client.PostAsync($"{BaseUrl}/v1/model/unload", null);
-            if (response.IsSuccessStatusCode)
+            
+            var modelsResponse = await client.GetAsync($"{BaseUrl}/v1/models");
+            if (!modelsResponse.IsSuccessStatusCode)
             {
-                _logService.Info("Model unloaded successfully");
+                _logService.Warning($"Failed to get models list: {modelsResponse.StatusCode}");
+                return;
             }
-            else
+
+            var json = await modelsResponse.Content.ReadAsStringAsync();
+            var modelsData = System.Text.Json.JsonDocument.Parse(json);
+            
+            var loadedModels = new List<string>();
+            
+            if (modelsData.RootElement.TryGetProperty("data", out var dataArray))
             {
-                _logService.Warning($"Failed to unload model: {response.StatusCode}");
+                foreach (var model in dataArray.EnumerateArray())
+                {
+                    if (model.TryGetProperty("status", out var status) &&
+                        status.TryGetProperty("value", out var statusValue) &&
+                        statusValue.GetString() == "loaded" &&
+                        model.TryGetProperty("id", out var id))
+                    {
+                        var modelId = id.GetString();
+                        if (!string.IsNullOrEmpty(modelId))
+                        {
+                            loadedModels.Add(modelId);
+                        }
+                    }
+                }
+            }
+
+            if (loadedModels.Count == 0)
+            {
+                _logService.Info("No loaded models found to unload");
+                return;
+            }
+
+            // Unload each loaded model
+            foreach (var modelId in loadedModels)
+            {
+                var unloadContent = new StringContent(
+                    $"{{\"model\":\"{modelId}\"}}",
+                    Encoding.UTF8,
+                    "application/json");
+                
+                var response = await client.PostAsync($"{BaseUrl}/models/unload", unloadContent);
+                if (response.IsSuccessStatusCode)
+                {
+                    _logService.Info($"Model '{modelId}' unloaded successfully");
+                }
+                else
+                {
+                    var errorBody = await response.Content.ReadAsStringAsync();
+                    _logService.Warning($"Failed to unload model '{modelId}': {response.StatusCode} - {errorBody}");
+                }
             }
         }
         catch (Exception ex)
@@ -207,7 +270,9 @@ public class LlamaServerService : ILlamaServerService, IDisposable
     {
         if (!string.IsNullOrEmpty(e.Data))
         {
-            OutputReceived?.Invoke(this, $"[ERR] {e.Data}");
+            // Pass through stderr output without [ERR] prefix - llama-server writes
+            // all output (including info logs) to stderr, so prefix would be misleading
+            OutputReceived?.Invoke(this, e.Data);
         }
     }
 

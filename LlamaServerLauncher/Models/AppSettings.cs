@@ -22,6 +22,11 @@ public class AppSettings
     public string Temperature { get; set; } = "";
     public string MaxTokens { get; set; } = "";
     public string BatchSize { get; set; } = "";
+    public string UBatchSize { get; set; } = "";
+    public string MinP { get; set; } = "";
+    public string MmprojPath { get; set; } = "";
+    public string CacheTypeK { get; set; } = "";
+    public string CacheTypeV { get; set; } = "";
     public string TopK { get; set; } = "";
     public string TopP { get; set; } = "";
     public string RepeatPenalty { get; set; } = "";
@@ -35,4 +40,5 @@ public class AppSettings
     public bool VerboseLogging { get; set; }
     public string CustomArguments { get; set; } = "";
     public bool AutoRestart { get; set; }
+    public bool AutoScrollLog { get; set; } = true;
 }

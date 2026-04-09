@@ -72,7 +72,7 @@
     <value>Stop Server</value>
   </data>
   <data name="UnloadModel" xml:space="preserve">
-    <value>Unload Model</value>
+    <value>Unload Models</value>
   </data>
   <data name="AutoRestartOnCrash" xml:space="preserve">
     <value>Auto-restart on crash</value>
@@ -179,6 +179,21 @@
   <data name="BatchSize" xml:space="preserve">
     <value>Batch Size:</value>
   </data>
+  <data name="UBatchSize" xml:space="preserve">
+    <value>U-Batch Size:</value>
+  </data>
+  <data name="MinP" xml:space="preserve">
+    <value>Min-P:</value>
+  </data>
+  <data name="MMProj" xml:space="preserve">
+    <value>MMProj:</value>
+  </data>
+  <data name="CacheTypeK" xml:space="preserve">
+    <value>Cache Type K:</value>
+  </data>
+  <data name="CacheTypeV" xml:space="preserve">
+    <value>Cache Type V:</value>
+  </data>
   <data name="TopK" xml:space="preserve">
     <value>Top-K:</value>
   </data>
@@ -230,6 +245,9 @@
   <data name="ClearLog" xml:space="preserve">
     <value>Clear Log</value>
   </data>
+  <data name="AutoScrollLog" xml:space="preserve">
+    <value>Auto-scroll log</value>
+  </data>
 
   <!-- Messages -->
   <data name="ErrorTitle" xml:space="preserve">
@@ -247,6 +265,15 @@
   <data name="PleaseEnterProfileName" xml:space="preserve">
     <value>Please enter a profile name</value>
   </data>
+  <data name="UnsavedChangesTitle" xml:space="preserve">
+    <value>Unsaved Changes</value>
+  </data>
+  <data name="UnsavedChangesMessage" xml:space="preserve">
+    <value>You have unsaved changes. Do you want to save before continuing?</value>
+  </data>
+  <data name="UnsavedChangesWarning" xml:space="preserve">
+    <value>(unsaved)</value>
+  </data>
   <data name="AutoRestarting" xml:space="preserve">
     <value>Server exited unexpectedly. Auto-restarting...</value>
   </data>
@@ -263,6 +290,14 @@
   </data>
   <data name="Russian" xml:space="preserve">
     <value>Русский</value>
+  </data>
+
+  <!-- Close Confirmation -->
+  <data name="ConfirmCloseTitle" xml:space="preserve">
+    <value>Confirm Exit</value>
+  </data>
+  <data name="ConfirmCloseMessage" xml:space="preserve">
+    <value>The server is still running. Are you sure you want to exit?</value>
   </data>
 
   <!-- Notify Icon -->
@@ -303,6 +338,21 @@
   </data>
   <data name="TooltipBatchSize" xml:space="preserve">
     <value>logical maximum batch size (default: 2048)</value>
+  </data>
+  <data name="TooltipUBatchSize" xml:space="preserve">
+    <value>physical maximum batch size (default: 512)</value>
+  </data>
+  <data name="TooltipMinP" xml:space="preserve">
+    <value>min-p sampling (default: 0.05, 0.0 = disabled)</value>
+  </data>
+  <data name="TooltipMMProj" xml:space="preserve">
+    <value>path to multimodal projector file</value>
+  </data>
+  <data name="TooltipCacheTypeK" xml:space="preserve">
+    <value>KV cache data type for K (f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1)</value>
+  </data>
+  <data name="TooltipCacheTypeV" xml:space="preserve">
+    <value>KV cache data type for V (f32, f16, bf16, q8_0, q4_0, q4_1, iq4_nl, q5_0, q5_1)</value>
   </data>
   <data name="TooltipTopK" xml:space="preserve">
     <value>top-k sampling (default: 40, 0 = disabled)</value>

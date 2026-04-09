@@ -15,7 +15,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Resource Include="llama-launcher.ico" />
+    <EmbeddedResource Include="llama-launcher.ico" />
   </ItemGroup>
 
   <ItemGroup>
