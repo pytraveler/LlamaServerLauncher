@@ -84,6 +84,7 @@ public class MainViewModel : INotifyPropertyChanged
     private string _apiKey = string.Empty;
     private string _logFilePath = string.Empty;
     private bool _verboseLogging;
+    private string _alias = string.Empty;
     private string _customArguments = string.Empty;
     private bool _autoRestart;
     private bool _autoScroll = true;
@@ -169,6 +170,7 @@ public class MainViewModel : INotifyPropertyChanged
         ApiKey = settings.ApiKey;
         LogFilePath = settings.LogFilePath;
         VerboseLogging = settings.VerboseLogging;
+        Alias = settings.Alias;
         CustomArguments = settings.CustomArguments;
         AutoRestart = settings.AutoRestart;
         AutoScroll = settings.AutoScrollLog;
@@ -207,6 +209,7 @@ public class MainViewModel : INotifyPropertyChanged
             ApiKey = ApiKey,
             LogFilePath = LogFilePath,
             VerboseLogging = VerboseLogging,
+            Alias = Alias,
             CustomArguments = CustomArguments,
             AutoRestart = AutoRestart,
             AutoScrollLog = AutoScroll
@@ -375,6 +378,12 @@ public class MainViewModel : INotifyPropertyChanged
         set { _verboseLogging = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasUnsavedChanges)); UpdateCurrentCommand(); }
     }
 
+    public string Alias
+    {
+        get => _alias;
+        set { _alias = value; OnPropertyChanged(); OnPropertyChanged(nameof(HasUnsavedChanges)); UpdateCurrentCommand(); }
+    }
+
     public bool AutoRestart
     {
         get => _autoRestart;
@@ -414,33 +423,34 @@ public class MainViewModel : INotifyPropertyChanged
     private static bool ConfigsEqual(ServerConfiguration a, ServerConfiguration b)
     {
         return a.ExecutablePath == b.ExecutablePath &&
-               a.ModelPath == b.ModelPath &&
-               a.ModelsDir == b.ModelsDir &&
-               a.Host == b.Host &&
-               a.Port == b.Port &&
-               a.ContextSize == b.ContextSize &&
-               a.Threads == b.Threads &&
-               a.GpuLayers == b.GpuLayers &&
-               a.Temperature == b.Temperature &&
-               a.MaxTokens == b.MaxTokens &&
-               a.BatchSize == b.BatchSize &&
-               a.UBatchSize == b.UBatchSize &&
-               a.MinP == b.MinP &&
-               a.MmprojPath == b.MmprojPath &&
-               a.CacheTypeK == b.CacheTypeK &&
-               a.CacheTypeV == b.CacheTypeV &&
-               a.TopK == b.TopK &&
-               a.TopP == b.TopP &&
-               a.RepeatPenalty == b.RepeatPenalty &&
-               a.FlashAttention == b.FlashAttention &&
-               a.EnableWebUI == b.EnableWebUI &&
-               a.EmbeddingMode == b.EmbeddingMode &&
-               a.EnableSlots == b.EnableSlots &&
-               a.EnableMetrics == b.EnableMetrics &&
-               a.ApiKey == b.ApiKey &&
-               a.LogFilePath == b.LogFilePath &&
-               a.VerboseLogging == b.VerboseLogging &&
-               a.CustomArguments == b.CustomArguments;
+            a.ModelPath == b.ModelPath &&
+            a.ModelsDir == b.ModelsDir &&
+            a.Host == b.Host &&
+            a.Port == b.Port &&
+            a.ContextSize == b.ContextSize &&
+            a.Threads == b.Threads &&
+            a.GpuLayers == b.GpuLayers &&
+            a.Temperature == b.Temperature &&
+            a.MaxTokens == b.MaxTokens &&
+            a.BatchSize == b.BatchSize &&
+            a.UBatchSize == b.UBatchSize &&
+            a.MinP == b.MinP &&
+            a.MmprojPath == b.MmprojPath &&
+            a.CacheTypeK == b.CacheTypeK &&
+            a.CacheTypeV == b.CacheTypeV &&
+            a.TopK == b.TopK &&
+            a.TopP == b.TopP &&
+            a.RepeatPenalty == b.RepeatPenalty &&
+            a.FlashAttention == b.FlashAttention &&
+            a.EnableWebUI == b.EnableWebUI &&
+            a.EmbeddingMode == b.EmbeddingMode &&
+            a.EnableSlots == b.EnableSlots &&
+            a.EnableMetrics == b.EnableMetrics &&
+            a.ApiKey == b.ApiKey &&
+            a.LogFilePath == b.LogFilePath &&
+            a.VerboseLogging == b.VerboseLogging &&
+            a.Alias == b.Alias &&
+            a.CustomArguments == b.CustomArguments;
     }
 
     public string ProfileNameInput
@@ -504,7 +514,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand ClearLogCommand { get; }
 
     public bool CanStartServer => !string.IsNullOrEmpty(ExecutablePath) && 
-                                   (!string.IsNullOrEmpty(ModelPath) || !string.IsNullOrEmpty(ModelsDir));
+                                    (!string.IsNullOrEmpty(ModelPath) || !string.IsNullOrEmpty(ModelsDir));
 
     private void BrowseExecutable()
     {
@@ -590,7 +600,7 @@ public class MainViewModel : INotifyPropertyChanged
             GpuLayers = ParseNullableInt(GpuLayers),
             Temperature = ParseNullableDouble(Temperature),
             MaxTokens = ParseNullableInt(MaxTokens),
-           BatchSize = ParseNullableInt(BatchSize),
+            BatchSize = ParseNullableInt(BatchSize),
             UBatchSize = ParseNullableInt(UBatchSize),
             MinP = ParseNullableDouble(MinP),
             MmprojPath = MmprojPath,
@@ -607,6 +617,7 @@ public class MainViewModel : INotifyPropertyChanged
             ApiKey = ApiKey,
             LogFilePath = LogFilePath,
             VerboseLogging = VerboseLogging,
+            Alias = Alias,
             CustomArguments = CustomArguments
         };
     }
@@ -623,7 +634,7 @@ public class MainViewModel : INotifyPropertyChanged
         GpuLayers = config.GpuLayers?.ToString() ?? string.Empty;
         Temperature = config.Temperature?.ToString() ?? string.Empty;
         MaxTokens = config.MaxTokens?.ToString() ?? string.Empty;
-       BatchSize = config.BatchSize?.ToString() ?? string.Empty;
+        BatchSize = config.BatchSize?.ToString() ?? string.Empty;
         UBatchSize = config.UBatchSize?.ToString() ?? string.Empty;
         MinP = config.MinP?.ToString() ?? string.Empty;
         MmprojPath = config.MmprojPath;
@@ -640,6 +651,7 @@ public class MainViewModel : INotifyPropertyChanged
         ApiKey = config.ApiKey;
         LogFilePath = config.LogFilePath;
         VerboseLogging = config.VerboseLogging;
+        Alias = config.Alias;
         CustomArguments = config.CustomArguments;
     }
 

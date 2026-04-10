@@ -226,6 +226,9 @@
   <data name="ApiKey" xml:space="preserve">
     <value>API Key:</value>
   </data>
+  <data name="Alias" xml:space="preserve">
+    <value>Model Alias:</value>
+  </data>
   <data name="LogFile" xml:space="preserve">
     <value>Log File:</value>
   </data>
@@ -380,6 +383,9 @@
   </data>
   <data name="TooltipApiKey" xml:space="preserve">
     <value>API key to use for authentication, multiple keys can be provided as a comma-separated list (default: none)</value>
+  </data>
+  <data name="TooltipAlias" xml:space="preserve">
+    <value>set model name aliases, comma-separated (to be used by API)</value>
   </data>
   <data name="TooltipLogFile" xml:space="preserve">
     <value>Log to file</value>

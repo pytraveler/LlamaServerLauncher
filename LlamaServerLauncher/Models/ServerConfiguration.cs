@@ -85,6 +85,9 @@ public class ServerConfiguration
     [JsonPropertyName("verboseLogging")]
     public bool VerboseLogging { get; set; }
 
+    [JsonPropertyName("alias")]
+    public string Alias { get; set; } = string.Empty;
+
     [JsonPropertyName("customArguments")]
     public string CustomArguments { get; set; } = string.Empty;
 
@@ -119,6 +122,7 @@ public class ServerConfiguration
             ApiKey = ApiKey,
             LogFilePath = LogFilePath,
             VerboseLogging = VerboseLogging,
+            Alias = Alias,
             CustomArguments = CustomArguments
         };
     }
@@ -169,6 +173,8 @@ public class ServerConfiguration
         ["--log-file"] = new("LogFilePath", ArgType.String),
         ["-v"] = new("VerboseLogging", ArgType.BoolSimple),
         ["--verbose"] = new("VerboseLogging", ArgType.BoolSimple),
+        ["-a"] = new("Alias", ArgType.String),
+        ["--alias"] = new("Alias", ArgType.String),
     };
 
     public static readonly Dictionary<string, string[]> MutuallyExclusiveGroups = new()

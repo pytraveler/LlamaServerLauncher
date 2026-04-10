@@ -292,6 +292,7 @@
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
                                     <RowDefinition Height="Auto"/>
+                                    <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
@@ -327,36 +328,40 @@
                                         Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
                                         ToolTip="{Binding Localized.TooltipApiKey}"/>
 
-                                <Label Grid.Row="2" Grid.Column="0" Content="{Binding Localized.LogFile}" VerticalAlignment="Center"
-                                        ToolTip="{Binding Localized.TooltipLogFile}"/>
+                                <Label Grid.Row="2" Grid.Column="0" Content="{Binding Localized.Alias}" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipAlias}"/>
                                 <TextBox Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="2" 
+                                        Text="{Binding Alias, UpdateSourceTrigger=PropertyChanged}" 
+                                        Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipAlias}"/>
+
+                                <Label Grid.Row="3" Grid.Column="0" Content="{Binding Localized.LogFile}" VerticalAlignment="Center"
+                                        ToolTip="{Binding Localized.TooltipLogFile}"/>
+                                <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" 
                                         Text="{Binding LogFilePath, UpdateSourceTrigger=PropertyChanged}" 
                                         Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
                                         ToolTip="{Binding Localized.TooltipLogFile}"/>
-                                <Button Grid.Row="2" Grid.Column="3" Content="{Binding Localized.Browse}" Command="{Binding BrowseLogFileCommand}" 
+                                <Button Grid.Row="3" Grid.Column="3" Content="{Binding Localized.Browse}" Command="{Binding BrowseLogFileCommand}" 
                                         VerticalAlignment="Center"/>
 
-                                <CheckBox Grid.Row="1" Grid.Column="3" Content="{Binding Localized.VerboseLogging}" 
-                                        IsChecked="{Binding VerboseLogging}" Margin="10,3"/>
-
-                                <Label Grid.Row="3" Grid.Column="0" Content="{Binding Localized.MMProj}" VerticalAlignment="Center"
+                                <Label Grid.Row="4" Grid.Column="0" Content="{Binding Localized.MMProj}" VerticalAlignment="Center"
                                         ToolTip="{Binding Localized.TooltipMMProj}"/>
-                                <TextBox Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="2" 
+                                <TextBox Grid.Row="4" Grid.Column="1" Grid.ColumnSpan="2" 
                                         Text="{Binding MmprojPath, UpdateSourceTrigger=PropertyChanged}" 
                                         Style="{StaticResource WideTextBox}" VerticalAlignment="Center"
                                         ToolTip="{Binding Localized.TooltipMMProj}"/>
-                                <Button Grid.Row="3" Grid.Column="3" Content="{Binding Localized.Browse}" Command="{Binding BrowseMmprojCommand}" 
+                                <Button Grid.Row="4" Grid.Column="3" Content="{Binding Localized.Browse}" Command="{Binding BrowseMmprojCommand}" 
                                         VerticalAlignment="Center"/>
 
-                                <Label Grid.Row="3" Grid.Column="4" Content="{Binding Localized.CacheTypeK}" VerticalAlignment="Center"
+                                <Label Grid.Row="4" Grid.Column="4" Content="{Binding Localized.CacheTypeK}" VerticalAlignment="Center"
                                         ToolTip="{Binding Localized.TooltipCacheTypeK}"/>
-                                <ComboBox Grid.Row="3" Grid.Column="5" ItemsSource="{Binding CacheTypes}" 
+                                <ComboBox Grid.Row="4" Grid.Column="5" ItemsSource="{Binding CacheTypes}" 
                                             SelectedItem="{Binding CacheTypeK}" MinWidth="80" VerticalAlignment="Center"
                                             ToolTip="{Binding Localized.TooltipCacheTypeK}"/>
 
-                                <Label Grid.Row="3" Grid.Column="6" Content="{Binding Localized.CacheTypeV}" VerticalAlignment="Center"
+                                <Label Grid.Row="4" Grid.Column="6" Content="{Binding Localized.CacheTypeV}" VerticalAlignment="Center"
                                         ToolTip="{Binding Localized.TooltipCacheTypeV}"/>
-                                <ComboBox Grid.Row="3" Grid.Column="7" ItemsSource="{Binding CacheTypes}" 
+                                <ComboBox Grid.Row="4" Grid.Column="7" ItemsSource="{Binding CacheTypes}" 
                                             SelectedItem="{Binding CacheTypeV}" MinWidth="80" VerticalAlignment="Center"
                                             ToolTip="{Binding Localized.TooltipCacheTypeV}"/>
                             </Grid>

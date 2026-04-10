@@ -43,19 +43,37 @@ public static class CommandLineBuilder
         // Получить значение из CustomArguments для конкретного флага или его синонимов
         string? GetCustomValue(string flag)
         {
-            if (customArgValues.TryGetValue(flag, out var val))
-                return val;
+            if (customArgValues.TryGetValue(flag, out var val) && !string.IsNullOrWhiteSpace(val))
+                return val;  // Оставляем как есть - с кавычками если они были
             
             foreach (var kvp in ServerConfiguration.KnownArguments)
             {
                 if (kvp.Value.PropertyName == GetPropertyNameForFlag(flag))
                 {
-                    if (customArgValues.TryGetValue(kvp.Key, out val))
-                        return val;
+                    if (customArgValues.TryGetValue(kvp.Key, out val) && !string.IsNullOrWhiteSpace(val))
+                        return val;  // Оставляем как есть - с кавычками если они были
                 }
             }
             
             return null;
+        }
+
+        // Проверить, указан ли флаг в CustomArguments (независимо от значения)
+        bool IsFlagPresentInCustomArgs(string flag)
+        {
+            if (customArgValues.ContainsKey(flag))
+                return true;
+            
+            foreach (var kvp in ServerConfiguration.KnownArguments)
+            {
+                if (kvp.Value.PropertyName == GetPropertyNameForFlag(flag))
+                {
+                    if (customArgValues.ContainsKey(kvp.Key))
+                        return true;
+                }
+            }
+            
+            return false;
         }
 
         // Получить конкретный флаг из CustomArguments (основной или инвертированный)
@@ -82,16 +100,21 @@ public static class CommandLineBuilder
 
         void AddIfNotOverridden(List<string> list, string flag, string? uiValue)
         {
+            // Проверяем: если флаг есть в CustomArguments со значением - используем его
             string? customValue = GetCustomValue(flag);
             
             if (customValue != null)
             {
-                list.Add($"{flag} {customValue}");
+                // Есть значение из CustomArguments - добавляем его с кавычками если нужно
+                list.Add($"{flag} {QuoteIfNeeded(customValue)}");
             }
-            else if (!string.IsNullOrEmpty(uiValue))
+            else if (!IsFlagPresentInCustomArgs(flag) && !string.IsNullOrEmpty(uiValue))
             {
+                // Флага нет в CustomArguments и есть UI значение - добавляем из UI
                 list.Add($"{flag} {uiValue}");
             }
+            // Если флаг указан в CustomArguments но БЕЗ значения - ничего не добавляем
+            // Это позволяет "отключить" параметр через CustomArguments
         }
 
         void AddBoolOnOff(List<string> list, string flag, bool? uiValue, string invertedFlag = "")
@@ -161,8 +184,19 @@ public static class CommandLineBuilder
         AddIfNotOverridden(args, "-ub", config.UBatchSize?.ToString());
         AddIfNotOverridden(args, "--min-p", config.MinP?.ToString());
         
-        if (!string.IsNullOrEmpty(config.MmprojPath))
+        // Проверяем, переопределён ли -mm через CustomArguments
+        string? mmCustomValue = GetCustomValue("-mm");
+        
+        if (mmCustomValue != null)
+        {
+            // Есть значение из CustomArguments - используем его
+            args.Add($"-mm {QuoteIfNeeded(mmCustomValue)}");
+        }
+        else if (!string.IsNullOrEmpty(config.MmprojPath))
+        {
+            // Нет в CustomArguments, используем UI значение
             args.Add($"-mm \"{EscapePath(config.MmprojPath)}\"");
+        }
         
         AddIfNotOverridden(args, "-ctk", config.CacheTypeK);
         AddIfNotOverridden(args, "-ctv", config.CacheTypeV);
@@ -197,6 +231,8 @@ public static class CommandLineBuilder
 
         AddIfNotOverridden(args, "--api-key", string.IsNullOrEmpty(config.ApiKey) ? null : $"\"{config.ApiKey}\"");
         AddIfNotOverridden(args, "--log-file", string.IsNullOrEmpty(config.LogFilePath) ? null : $"\"{config.LogFilePath}\"");
+        // AddIfNotOverridden(args, "-a", string.IsNullOrEmpty(config.Alias) ? null : $"\"{config.Alias}\"");
+        AddIfNotOverridden(args, "--alias", string.IsNullOrEmpty(config.Alias) ? null : $"\"{config.Alias}\"");
 
         // Обработка -v / --verbose
         string? actualVerboseFlag = GetActualCustomFlag("-v", "--verbose");
@@ -223,6 +259,32 @@ public static class CommandLineBuilder
         return null;
     }
 
+    private static string QuoteIfNeeded(string value)
+    {
+        // Добавляем кавычки если значение содержит пробелы или спецсимволы
+        if (value.Contains(' ') || value.Contains('\t') || value.Contains('"') || value.Contains('\''))
+        {
+            // Экранируем внутренние двойные кавычки
+            return $"\"{value.Replace("\"", "\\\"")}\"";
+        }
+        return value;
+    }
+
+    private static string? StripQuotes(string? value)
+    {
+        if (string.IsNullOrEmpty(value))
+            return value;
+        
+        // Удаляем внешние кавычки (одинарные или двойные)
+        if ((value.StartsWith('"') && value.EndsWith('"')) || 
+            (value.StartsWith('\'') && value.EndsWith('\'')))
+        {
+            return value.Length > 2 ? value[1..^1] : string.Empty;
+        }
+        
+        return value;
+    }
+
     private static string EscapePath(string path)
     {
         return path.Replace("\\", "\\\\");
@@ -236,10 +298,14 @@ public static class CommandLineBuilder
         var parsed = CommandLineParser.ParseArguments(normalizedCustomArgs);
         var usedFlags = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
+        // Добавляем все известные флаги в список использованных
         foreach (var kvp in ServerConfiguration.KnownArguments)
         {
-            if (usedCustomValues.ContainsKey(kvp.Key))
+            if (usedCustomValues.ContainsKey(kvp.Key) || 
+                (usedCustomValues.ContainsKey(kvp.Key) && usedCustomValues[kvp.Key] != null))
+            {
                 usedFlags.Add(kvp.Key);
+            }
         }
 
         for (int i = 0; i < parsed.Count; i++)
@@ -253,7 +319,8 @@ public static class CommandLineBuilder
 
             if (i + 1 < parsed.Count && !parsed[i + 1].StartsWith("-"))
             {
-                args.Add($"{arg} {parsed[i + 1]}");
+                // Добавляем кавычки если значение содержит пробелы
+                args.Add($"{arg} {QuoteIfNeeded(parsed[i + 1])}");
                 i++;
             }
             else

@@ -226,6 +226,9 @@
   <data name="ApiKey" xml:space="preserve">
     <value>API ключ:</value>
   </data>
+  <data name="Alias" xml:space="preserve">
+    <value>Псевдоним модели:</value>
+  </data>
   <data name="LogFile" xml:space="preserve">
     <value>Файл лога:</value>
   </data>
@@ -380,6 +383,9 @@
   </data>
   <data name="TooltipApiKey" xml:space="preserve">
     <value>API ключ для аутентификации, несколько ключей можно указать через запятую (по умолчанию: нет)</value>
+  </data>
+  <data name="TooltipAlias" xml:space="preserve">
+    <value>установить псевдонимы имени модели, через запятую (для использования в API)</value>
   </data>
   <data name="TooltipLogFile" xml:space="preserve">
     <value>Вести лог в файл</value>

@@ -38,6 +38,7 @@ public class AppSettings
     public string ApiKey { get; set; } = "";
     public string LogFilePath { get; set; } = "";
     public bool VerboseLogging { get; set; }
+    public string Alias { get; set; } = "";
     public string CustomArguments { get; set; } = "";
     public bool AutoRestart { get; set; }
     public bool AutoScrollLog { get; set; } = true;

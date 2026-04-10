@@ -82,6 +82,7 @@ public class LocalizedStrings : INotifyPropertyChanged
     public string Slots => GetString("Slots");
     public string Metrics => GetString("Metrics");
     public string ApiKey => GetString("ApiKey");
+    public string Alias => GetString("Alias");
     public string LogFile => GetString("LogFile");
     public string VerboseLogging => GetString("VerboseLogging");
     public string CustomArguments => GetString("CustomArguments");
@@ -129,6 +130,7 @@ public class LocalizedStrings : INotifyPropertyChanged
     public string TooltipSlots => GetString("TooltipSlots");
     public string TooltipMetrics => GetString("TooltipMetrics");
     public string TooltipApiKey => GetString("TooltipApiKey");
+    public string TooltipAlias => GetString("TooltipAlias");
     public string TooltipLogFile => GetString("TooltipLogFile");
     public string TooltipCustomArguments => GetString("TooltipCustomArguments");
 }
