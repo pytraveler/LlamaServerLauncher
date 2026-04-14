@@ -114,6 +114,18 @@
   <data name="Export" xml:space="preserve">
     <value>Экспорт</value>
   </data>
+  <data name="ExportDialogTitle" xml:space="preserve">
+    <value>Экспорт профиля</value>
+  </data>
+  <data name="ExportFormatJson" xml:space="preserve">
+    <value>Профиль JSON (*.json)</value>
+  </data>
+  <data name="ExportFormatBat" xml:space="preserve">
+    <value>Пакетный файл (*.bat)</value>
+  </data>
+  <data name="ExportToBat" xml:space="preserve">
+    <value>Экспорт BAT</value>
+  </data>
   <data name="Import" xml:space="preserve">
     <value>Импорт</value>
   </data>
@@ -301,6 +313,12 @@
   </data>
   <data name="ConfirmCloseMessage" xml:space="preserve">
     <value>Сервер все еще запущен. Вы уверены, что хотите выйти?</value>
+  </data>
+  <data name="ErrorLoadingFile" xml:space="preserve">
+    <value>Ошибка загрузки файла: {0}</value>
+  </data>
+  <data name="DropBatFile" xml:space="preserve">
+    <value>Перетащите файл сюда</value>
   </data>
 
   <!-- Notify Icon -->

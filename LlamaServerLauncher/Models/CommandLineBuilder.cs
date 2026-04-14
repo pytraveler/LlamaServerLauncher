@@ -287,8 +287,31 @@ public static class CommandLineBuilder
 
     private static string EscapePath(string path)
     {
+        // Экранируем \ для записи в BAT файл: \ -> \\
         return path.Replace("\\", "\\\\");
     }
+
+    public static string UnescapePath(string path)
+    {
+        // Обратное преобразование при чтении из BAT файла
+        // Строка @"\\" в C# — это два обратных слэша, @"\" — один
+        // Из .\\models\\... (два слэша в строке) делаем .\models\... (один слэш)
+        if (string.IsNullOrEmpty(path))
+            return path;
+        
+        return path.Replace(@"\\", @"\");
+    }
+
+    // Список свойств, содержащих пути файловой системы, которые нужно декодировать при чтении из BAT
+    private static readonly HashSet<string> PathProperties = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "ModelPath",
+        "ModelsDir",
+        "MmprojPath",
+        "ExecutablePath"
+    };
+
+    public static bool IsPathProperty(string propertyName) => PathProperties.Contains(propertyName);
 
     private static void AddRemainingCustomArgs(List<string> args, string normalizedCustomArgs, Dictionary<string, string?> usedCustomValues)
     {

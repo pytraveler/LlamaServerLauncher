@@ -109,6 +109,40 @@ public class ConfigurationService
         }
     }
 
+    public async Task<ServerConfiguration?> LoadProfileFromFileAsync(string filePath)
+    {
+        try
+        {
+            if (!File.Exists(filePath))
+            {
+                _logService.Warning($"Profile file not found: {filePath}");
+                return null;
+            }
+
+            var json = await File.ReadAllTextAsync(filePath);
+            var profile = JsonSerializer.Deserialize<ProfileInfo>(json);
+            
+            if (profile == null || profile.Configuration == null)
+            {
+                _logService.Warning($"Invalid profile format in file: {filePath}");
+                return null;
+            }
+
+            _logService.Info($"Profile from file loaded: {filePath}");
+            return profile.Configuration;
+        }
+        catch (JsonException ex)
+        {
+            _logService.Error($"JSON parsing error: {ex.Message}");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            _logService.Error($"Failed to load profile from file '{filePath}': {ex.Message}");
+            return null;
+        }
+    }
+
     public List<ProfileInfo> GetAllProfiles()
     {
         var profiles = new List<ProfileInfo>();

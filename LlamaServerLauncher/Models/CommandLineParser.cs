@@ -30,6 +30,20 @@ public static class CommandLineParser
         for (int i = 0; i < args.Length; i++)
         {
             char c = args[i];
+            
+            // Обработка escape-последовательностей внутри кавычек: \"
+            if (inQuotes && c == '\\' && i + 1 < args.Length)
+            {
+                char nextC = args[i + 1];
+                // Если экранированная кавычка или обратный слэш - сохраняем как есть
+                if (nextC == '"' || nextC == '\\')
+                {
+                    sb.Append(c);      // добавляем \
+                    sb.Append(nextC);  // добавляем " или \
+                    i++;               // пропускаем следующий символ
+                    continue;
+                }
+            }
 
             if (!inQuotes && (c == '"' || c == '\''))
             {
@@ -41,7 +55,7 @@ public static class CommandLineParser
                 inQuotes = false;
                 quoteChar = null;
             }
-            else if (!inQuotes && c == ' ')
+            else if (!inQuotes && (c == ' ' || c == '\t'))
             {
                 if (sb.Length > 0)
                 {

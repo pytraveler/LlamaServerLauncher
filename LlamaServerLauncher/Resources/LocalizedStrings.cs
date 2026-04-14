@@ -50,6 +50,10 @@ public class LocalizedStrings : INotifyPropertyChanged
     public string Load => GetString("Load");
     public string Delete => GetString("Delete");
     public string Export => GetString("Export");
+    public string ExportDialogTitle => GetString("ExportDialogTitle");
+    public string ExportFormatJson => GetString("ExportFormatJson");
+    public string ExportFormatBat => GetString("ExportFormatBat");
+    public string ExportToBat => GetString("ExportToBat");
     public string Import => GetString("Import");
     public string Paths => GetString("Paths");
     public string LlamaServerExe => GetString("LlamaServerExe");
@@ -105,6 +109,7 @@ public class LocalizedStrings : INotifyPropertyChanged
     public static string FailedToAutoRestart => GetString("FailedToAutoRestart");
     public static string ConfirmCloseTitle => GetString("ConfirmCloseTitle");
     public static string ConfirmCloseMessage => GetString("ConfirmCloseMessage");
+    public static string DropBatFile => GetString("DropBatFile");
 
     public string TooltipModelPath => GetString("TooltipModelPath");
     public string TooltipModelsDir => GetString("TooltipModelsDir");
@@ -129,7 +134,7 @@ public class LocalizedStrings : INotifyPropertyChanged
     public string TooltipEmbedding => GetString("TooltipEmbedding");
     public string TooltipSlots => GetString("TooltipSlots");
     public string TooltipMetrics => GetString("TooltipMetrics");
-    public string TooltipApiKey => GetString("TooltipApiKey");
+   public string TooltipApiKey => GetString("TooltipApiKey");
     public string TooltipAlias => GetString("TooltipAlias");
     public string TooltipLogFile => GetString("TooltipLogFile");
     public string TooltipCustomArguments => GetString("TooltipCustomArguments");

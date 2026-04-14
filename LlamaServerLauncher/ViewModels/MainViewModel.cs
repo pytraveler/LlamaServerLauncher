@@ -21,6 +21,12 @@ public class MainViewModel : INotifyPropertyChanged
 {
     private readonly LlamaServerService _serverService;
     private readonly ConfigurationService _configService;
+    
+    /// <summary>
+    /// Exposes the LogService for use by MainWindow to ensure unified logging.
+    /// </summary>
+    public LogService LogService => _logService;
+    
     private readonly LogService _logService;
     private ServerConfiguration? _loadedProfileConfig;
     private string _loadedProfileName = string.Empty;
@@ -125,6 +131,7 @@ public class MainViewModel : INotifyPropertyChanged
         LoadProfileCommand = new AsyncRelayCommand(LoadProfileAsync);
         DeleteProfileCommand = new AsyncRelayCommand(DeleteProfileAsync);
         ExportProfileCommand = new AsyncRelayCommand(ExportProfileAsync);
+        ExportToBatCommand = new AsyncRelayCommand(ExportToBatAsync);
         ImportProfileCommand = new AsyncRelayCommand(ImportProfileAsync);
         ClearLogCommand = new RelayCommand(ClearLog);
 
@@ -423,34 +430,34 @@ public class MainViewModel : INotifyPropertyChanged
     private static bool ConfigsEqual(ServerConfiguration a, ServerConfiguration b)
     {
         return a.ExecutablePath == b.ExecutablePath &&
-            a.ModelPath == b.ModelPath &&
-            a.ModelsDir == b.ModelsDir &&
-            a.Host == b.Host &&
-            a.Port == b.Port &&
-            a.ContextSize == b.ContextSize &&
-            a.Threads == b.Threads &&
-            a.GpuLayers == b.GpuLayers &&
-            a.Temperature == b.Temperature &&
-            a.MaxTokens == b.MaxTokens &&
-            a.BatchSize == b.BatchSize &&
-            a.UBatchSize == b.UBatchSize &&
-            a.MinP == b.MinP &&
-            a.MmprojPath == b.MmprojPath &&
-            a.CacheTypeK == b.CacheTypeK &&
-            a.CacheTypeV == b.CacheTypeV &&
-            a.TopK == b.TopK &&
-            a.TopP == b.TopP &&
-            a.RepeatPenalty == b.RepeatPenalty &&
-            a.FlashAttention == b.FlashAttention &&
-            a.EnableWebUI == b.EnableWebUI &&
-            a.EmbeddingMode == b.EmbeddingMode &&
-            a.EnableSlots == b.EnableSlots &&
-            a.EnableMetrics == b.EnableMetrics &&
+                a.ModelPath == b.ModelPath &&
+                a.ModelsDir == b.ModelsDir &&
+                a.Host == b.Host &&
+                a.Port == b.Port &&
+                a.ContextSize == b.ContextSize &&
+                a.Threads == b.Threads &&
+                a.GpuLayers == b.GpuLayers &&
+                a.Temperature == b.Temperature &&
+                a.MaxTokens == b.MaxTokens &&
+                a.BatchSize == b.BatchSize &&
+                a.UBatchSize == b.UBatchSize &&
+                a.MinP == b.MinP &&
+                a.MmprojPath == b.MmprojPath &&
+                a.CacheTypeK == b.CacheTypeK &&
+                a.CacheTypeV == b.CacheTypeV &&
+                a.TopK == b.TopK &&
+                a.TopP == b.TopP &&
+                a.RepeatPenalty == b.RepeatPenalty &&
+                a.FlashAttention == b.FlashAttention &&
+                a.EnableWebUI == b.EnableWebUI &&
+                a.EmbeddingMode == b.EmbeddingMode &&
+                a.EnableSlots == b.EnableSlots &&
+                a.EnableMetrics == b.EnableMetrics &&
             a.ApiKey == b.ApiKey &&
-            a.LogFilePath == b.LogFilePath &&
-            a.VerboseLogging == b.VerboseLogging &&
-            a.Alias == b.Alias &&
-            a.CustomArguments == b.CustomArguments;
+                a.LogFilePath == b.LogFilePath &&
+                a.VerboseLogging == b.VerboseLogging &&
+                a.Alias == b.Alias &&
+                a.CustomArguments == b.CustomArguments;
     }
 
     public string ProfileNameInput
@@ -510,6 +517,7 @@ public class MainViewModel : INotifyPropertyChanged
     public ICommand LoadProfileCommand { get; }
     public ICommand DeleteProfileCommand { get; }
     public ICommand ExportProfileCommand { get; }
+    public ICommand ExportToBatCommand { get; }
     public ICommand ImportProfileCommand { get; }
     public ICommand ClearLogCommand { get; }
 
@@ -586,7 +594,7 @@ public class MainViewModel : INotifyPropertyChanged
         }
     }
 
-    private ServerConfiguration GetCurrentConfig()
+    public ServerConfiguration GetCurrentConfig()
     {
         return new ServerConfiguration
         {
@@ -812,15 +820,41 @@ public class MainViewModel : INotifyPropertyChanged
 
     private async Task ExportProfileAsync()
     {
+        var jsonFilter = $"{LocalizedStrings.Instance.ExportFormatJson}|*.json";
+        var batFilter = $"{LocalizedStrings.Instance.ExportFormatBat}|*.bat";
+        
         var dialog = new SaveFileDialog
         {
-            Filter = "JSON files (*.json)|*.json",
-            Title = "Export Profile"
+            Filter = $"{jsonFilter}|{batFilter}",
+            Title = LocalizedStrings.Instance.ExportDialogTitle,
+            DefaultExt = "json",
+            FilterIndex = 1
         };
         if (dialog.ShowDialog() == true)
         {
             var config = GetCurrentConfig();
-            await _configService.ExportProfileAsync(dialog.FileName, config);
+            
+            string filePath = dialog.FileName;
+            
+            if (dialog.FilterIndex == 2) // BAT file selected
+            {
+                // Ensure .bat extension
+                if (!filePath.EndsWith(".bat", StringComparison.OrdinalIgnoreCase))
+                    filePath += ".bat";
+                    
+                var command = CommandLineBuilder.BuildFullCommand(config);
+                var batContent = $"@echo off\n{command}\npause";
+                await System.IO.File.WriteAllTextAsync(filePath, batContent);
+                _logService.Info($"Profile exported to BAT '{filePath}'");
+            }
+            else // JSON file selected (default)
+            {
+                // Ensure .json extension
+                if (!filePath.EndsWith(".json", StringComparison.OrdinalIgnoreCase))
+                    filePath += ".json";
+                    
+                await _configService.ExportProfileAsync(filePath, config);
+            }
         }
     }
 
@@ -838,6 +872,50 @@ public class MainViewModel : INotifyPropertyChanged
             {
                 LoadConfigToUI(config);
             }
+        }
+    }
+
+    public void LoadConfigFromCommandLine(ServerConfiguration config)
+    {
+        ExecutablePath = string.Empty;
+        ModelPath = string.Empty;
+        ModelsDir = string.Empty;
+        Host = "127.0.0.1";
+        Port = 8080;
+        ContextSize = string.Empty;
+        Threads = string.Empty;
+        GpuLayers = string.Empty;
+        Temperature = string.Empty;
+        MaxTokens = string.Empty;
+        BatchSize = string.Empty;
+        UBatchSize = string.Empty;
+        MinP = string.Empty;
+        FlashAttention = null;
+        EnableWebUI = null;
+        EmbeddingMode = null;
+        EnableSlots = null;
+        EnableMetrics = null;
+        ApiKey = string.Empty;
+        LogFilePath = string.Empty;
+        VerboseLogging = false;
+        Alias = string.Empty;
+
+        LoadConfigToUI(config);
+    }
+
+    private async Task ExportToBatAsync()
+    {
+        var dialog = new SaveFileDialog
+        {
+            Filter = "BAT files (*.bat)|*.bat",
+            Title = "Export to BAT"
+        };
+        if (dialog.ShowDialog() == true)
+        {
+            var config = GetCurrentConfig();
+            var command = CommandLineBuilder.BuildFullCommand(config);
+            var batContent = $"@echo off\n{command}\npause";
+            await System.IO.File.WriteAllTextAsync(dialog.FileName, batContent);
         }
     }
 

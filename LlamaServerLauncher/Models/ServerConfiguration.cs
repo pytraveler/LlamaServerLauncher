@@ -129,8 +129,8 @@ public class ServerConfiguration
 
     public static readonly Dictionary<string, ArgumentMapping> KnownArguments = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["-m"] = new("modelPath", ArgType.String),
-        ["--model"] = new("modelPath", ArgType.String),
+        ["-m"] = new("ModelPath", ArgType.String),
+        ["--model"] = new("ModelPath", ArgType.String),
         ["--models-dir"] = new("ModelsDir", ArgType.String),
         ["--host"] = new("Host", ArgType.String),
         ["--port"] = new("Port", ArgType.Int),
@@ -211,4 +211,104 @@ public enum ArgType
     BoolFlag,
     BoolFlagInverted,
     BoolSimple
+}
+
+public static class ServerConfigurationExtensions
+{
+    public static ServerConfiguration? ParseFromCommandLine(string args)
+    {
+        if (string.IsNullOrWhiteSpace(args))
+            return null;
+
+        var config = new ServerConfiguration();
+        var parsedArgs = CommandLineParser.ParseArguments(args);
+        var argValues = CommandLineParser.GetArgumentValues(parsedArgs);
+        var argFlags = CommandLineParser.GetArgumentFlags(parsedArgs);
+
+        foreach (var kvp in argValues)
+        {
+            var arg = kvp.Key;
+            var value = kvp.Value;
+
+            if (!ServerConfiguration.KnownArguments.TryGetValue(arg, out var mapping))
+                continue;
+
+            switch (mapping.Type)
+            {
+                case ArgType.String:
+                    var stringValue = value ?? "";
+                    // Декодируем escape-последовательности для путей файловой системы
+                    if (CommandLineBuilder.IsPathProperty(mapping.PropertyName))
+                    {
+                        stringValue = CommandLineBuilder.UnescapePath(stringValue);
+                    }
+                    SetProperty(config, mapping.PropertyName, stringValue);
+                    break;
+                case ArgType.Int:
+                    if (int.TryParse(value, out var intVal))
+                        SetProperty(config, mapping.PropertyName, intVal);
+                    break;
+                case ArgType.Double:
+                    if (double.TryParse(value, out var doubleVal))
+                        SetProperty(config, mapping.PropertyName, doubleVal);
+                    break;
+                case ArgType.BoolOnOff:
+                    if (value != null)
+                        SetProperty(config, mapping.PropertyName, value.Equals("on", StringComparison.OrdinalIgnoreCase));
+                    break;
+            }
+        }
+
+        foreach (var flag in argFlags)
+        {
+            if (!ServerConfiguration.KnownArguments.TryGetValue(flag, out var mapping))
+                continue;
+
+            switch (mapping.Type)
+            {
+                case ArgType.BoolFlag:
+                    SetProperty(config, mapping.PropertyName, true);
+                    break;
+                case ArgType.BoolFlagInverted:
+                    SetProperty(config, mapping.PropertyName, false);
+                    break;
+                case ArgType.BoolSimple:
+                    SetProperty(config, mapping.PropertyName, true);
+                    break;
+            }
+        }
+
+        var unknownArgs = new List<string>();
+        foreach (var arg in parsedArgs)
+        {
+            if (!arg.StartsWith("-"))
+                continue;
+
+            if (ServerConfiguration.KnownArguments.ContainsKey(arg))
+                continue;
+
+            unknownArgs.Add(arg);
+
+            if (argValues.TryGetValue(arg, out var val) && val != null)
+            {
+                unknownArgs.Add(val);
+            }
+        }
+
+        if (unknownArgs.Count > 0)
+        {
+            config.CustomArguments = string.Join(" ", unknownArgs);
+        }
+
+        return config;
+    }
+
+    private static void SetProperty(ServerConfiguration config, string propertyName, object value)
+    {
+        var prop = typeof(ServerConfiguration).GetProperty(propertyName);
+        if (prop != null && prop.CanWrite)
+        {
+            prop.SetValue(config, value);
+        }
+    }
 }
