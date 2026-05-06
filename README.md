@@ -1,4 +1,8 @@
-# LlamaCppLauncher
+# LlamaCppLauncher (deprecated)
+
+❗️❗️❗️ Use the latest version of the launcher on the [Avalonia](https://github.com/pytraveler/LlamaServerLauncherAvalonia) framework, where many new things have already been implemented. 
+([The current](https://github.com/pytraveler/LlamaServerLauncher) version is almost not supported).
+
 
 ![LlamaCppLauncher](docs/images/preview.png)
 
